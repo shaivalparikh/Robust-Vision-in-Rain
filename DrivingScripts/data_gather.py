@@ -84,6 +84,8 @@ import carla
 
 from carla import ColorConverter as cc
 
+from agents.navigation.basic_agent import BasicAgent
+
 import argparse
 import collections
 import datetime
@@ -92,6 +94,7 @@ import math
 import random
 import re
 import weakref
+import time
 
 try:
     import pygame
@@ -309,7 +312,8 @@ class World(object):
         return [v for v in self._weather_presets if v[1] == x][0]
         
     def get_random_preset_pair(self):
-        names = random.choice(rain_preset_names)
+        #names = random.choice(rain_preset_names)
+        names = rain_preset_names[0]
         clear = names[0]
         rain = random.choice([names[1], names[2], names[3]])
         a = self.get_preset_by_name(clear)
@@ -388,7 +392,8 @@ class KeyboardControl(object):
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._lights = carla.VehicleLightState.NONE
-            world.player.set_autopilot(self._autopilot_enabled)
+            self.agent = BasicAgent(world.player)
+            #world.player.set_autopilot(self._autopilot_enabled)
             world.player.set_light_state(self._lights)
         elif isinstance(world.player, carla.Walker):
             self._control = carla.WalkerControl()
@@ -397,6 +402,7 @@ class KeyboardControl(object):
         else:
             raise NotImplementedError("Actor type not supported")
         self._steer_cache = 0.0
+        self.stopping = False
         world.hud.notification("Press 'H' or '?' for help.", seconds=4.0)
 
     def parse_events(self, client, world, clock, sync_mode):
@@ -581,6 +587,9 @@ class KeyboardControl(object):
             elif isinstance(self._control, carla.WalkerControl):
                 self._parse_walker_keys(pygame.key.get_pressed(), clock.get_time(), world)
             world.player.apply_control(self._control)
+        else:
+            self._control = self.agent.run_step()
+            world.player.apply_control(self._control)
 
     def _parse_vehicle_keys(self, keys, milliseconds):
         if keys[K_UP] or keys[K_w]:
@@ -591,7 +600,10 @@ class KeyboardControl(object):
         if keys[K_DOWN] or keys[K_s]:
             self._control.brake = min(self._control.brake + 0.2, 1)
         else:
-            self._control.brake = 0
+            if self.stopping:
+                self._control.brake = 1
+            else:
+                self._control.brake = 0
 
         steer_increment = 5e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
@@ -1094,7 +1106,46 @@ class CameraManager(object):
                         self.lidar_range = float(attr_value)
 
             item.append(bp)
+
+        self.presets = None
+
+        self.record = ''
+        
+        self.rgb = self._parent.get_world().spawn_actor(
+            self.sensors[0][-1],
+            self._camera_transforms[1][0],
+            attach_to=self._parent,
+            attachment_type=self._camera_transforms[1][1]
+        )
+        self.rgb.listen(self.record_rgb)
+        
+        self.instance = None    #undocumented
+        
+        self.semantic = self._parent.get_world().spawn_actor(
+            self.sensors[1][-1],
+            self._camera_transforms[1][0],
+            attach_to=self._parent,
+            attachment_type=self._camera_transforms[1][1]
+        )
+        self.semantic.listen(self.record_semantic)
+        
+        self.count = -1
+        self.record_time = time.time()
+        
         self.index = None
+    
+    def record_rgb(self, event):
+        if 'r' in self.record:
+            self.record = self.record.replace('r', '')
+            if self.count == 0:
+                event.save_to_disk('../../carla_data/' + str(self.record_time) + '_clear.png')
+            else:
+                event.save_to_disk('../../carla_data/' + str(self.record_time) + '_rain_' + str(self.presets[1][1][0]) + '.png')
+                
+    def record_semantic(self, event):
+        if 's' in self.record:
+            self.record = self.record.replace('s', '')
+            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_semantic.png')
 
     def toggle_camera(self):
         self.transform_index = (self.transform_index + 1) % len(self._camera_transforms)
@@ -1220,7 +1271,7 @@ def game_loop(args):
         
         world.camera_manager.toggle_camera()
         controller._autopilot_enabled = not controller._autopilot_enabled
-        world.player.set_autopilot(controller._autopilot_enabled)
+        #world.player.set_autopilot(controller._autopilot_enabled)
 
         if args.sync:
             sim_world.tick()
@@ -1228,6 +1279,13 @@ def game_loop(args):
             sim_world.wait_for_tick()
 
         count = 0
+        #states: driving 0, stopping 1, recording 2, waiting 3, record 4, continue 5
+        state = 0
+        world.camera_manager.presets = world.get_random_preset_pair()
+        #print(world.camera_manager.presets)
+        preset = world.camera_manager.presets[0]
+        world.hud.notification('Weather: %s' % preset[1])
+        world.player.get_world().set_weather(preset[0])
 
         clock = pygame.time.Clock()
         while True:
@@ -1241,13 +1299,51 @@ def game_loop(args):
             pygame.display.flip()
             
             count += 1
-            if count > 100:
-                count = 0
-                presets = world.get_random_preset_pair()
-                #print(presets)
-                preset = presets[1]
-                world.hud.notification('Weather: %s' % preset[1])
-                world.player.get_world().set_weather(preset[0])
+            if state != 0:
+                if state == 5:
+                    world.camera_manager.presets = world.get_random_preset_pair()
+                    #print(world.camera_manager.presets)
+                    preset = world.camera_manager.presets[0]
+                    world.hud.notification('Weather: %s' % preset[1])
+                    world.player.get_world().set_weather(preset[0])
+                    controller.stopping = False
+                    #controller._autopilot_enabled = not controller._autopilot_enabled
+                    #world.player.set_autopilot(controller._autopilot_enabled)
+                    controller._autopilot_enabled = True
+                    #world.player.set_autopilot(True)
+                    state = 0
+                    count = 0
+                elif state == 1:
+                    vel = world.player.get_velocity()
+                    if vel.x == 0 and vel.y == 0 and vel.z == 0:
+                        state = 2
+                        world.camera_manager.count = 0
+                        world.camera_manager.record = 'sr' #'sir'
+                elif state == 2:
+                    if world.camera_manager.record == '':
+                        preset = world.camera_manager.presets[1]
+                        world.hud.notification('Weather: %s' % preset[1])
+                        world.player.get_world().set_weather(preset[0])
+                        count = 0
+                        state = 3
+                elif state == 3:
+                    if count > 100:
+                        world.camera_manager.count = 1
+                        world.camera_manager.record = 'r'
+                        state = 4
+                elif state == 4:
+                    if world.camera_manager.record == '':
+                        state = 5
+                        world.camera_manager.count = -1
+            else:
+                if count > 200:
+                    state = 1
+                    controller.stopping = True
+                    #controller._autopilot_enabled = not controller._autopilot_enabled
+                    #world.player.set_autopilot(controller._autopilot_enabled)
+                    controller._autopilot_enabled = False
+                    #world.player.set_autopilot(False)
+                    world.camera_manager.record_time = time.time()
 
     finally:
 
