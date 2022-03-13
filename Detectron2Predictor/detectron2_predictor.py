@@ -1,18 +1,19 @@
-GOOGLE_COLAB = False
+""" Installation
 
-# Some basic setup:
-# Setup detectron2 logger
+python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+# (add --user if you don't have permission)
+
+# Or, to install it from a local clone:
+git clone https://github.com/facebookresearch/detectron2.git
+python -m pip install -e detectron2
+"""
 import detectron2
-# from detectron2.utils.logger import setup_logger
-# setup_logger()
 
-# import some common libraries
 import numpy as np
 import os, json, cv2, random
 if GOOGLE_COLAB:
     from google.colab.patches import cv2_imshow
 
-# import some common detectron2 utilities
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -23,6 +24,8 @@ from detectron2.projects.point_rend import add_pointrend_config
 
 import torch
 # import matplotlib.pyplot as plt
+
+GOOGLE_COLAB = False
 
 class Detectron2Predictor:
     def __init__(self, head='InstanceSegmentation'):
