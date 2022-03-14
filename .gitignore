@@ -1,0 +1,3 @@
+ConversionScripts/converted_images
+ConversionScripts/converted_images/*
+*.pyc
