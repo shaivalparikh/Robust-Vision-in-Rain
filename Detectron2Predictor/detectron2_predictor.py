@@ -1,3 +1,5 @@
+GOOGLE_COLAB = False
+
 """ Installation
 
 python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
@@ -25,7 +27,7 @@ from detectron2.projects.point_rend import add_pointrend_config
 import torch
 # import matplotlib.pyplot as plt
 
-GOOGLE_COLAB = False
+import time
 
 class Detectron2Predictor:
     def __init__(self, head='InstanceSegmentation'):
@@ -89,9 +91,12 @@ class Detectron2Predictor:
         self.predictor = DefaultPredictor(self.cfg)
 
     def test_image(self, image):
-        print(image.shape)
-        v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
+        print(image.shape)
+
+        # start_time = time.time()
+
+        v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
         if self.head == 'SemanticSegmentation':
             outputs = self.predictor(image)
@@ -120,6 +125,7 @@ class Detectron2Predictor:
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
 
 
+
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
         else:
@@ -128,6 +134,8 @@ class Detectron2Predictor:
             cv2.destroyAllWindows()
             # plt.imshow(out.get_image()[:, :, ::-1])
             # plt.show()
+
+        # print(f'Time = {time.time() - start_time}')
 
     def test_image_file(self, image_path):
         image = cv2.imread(image_path)
