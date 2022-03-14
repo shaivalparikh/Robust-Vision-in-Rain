@@ -96,6 +96,8 @@ import re
 import weakref
 import time
 
+import traffic_gen
+
 try:
     import pygame
     from pygame.locals import KMOD_CTRL
@@ -298,6 +300,7 @@ class World(object):
         if self.sync:
             self.world.tick()
         else:
+            #self.world.tick()
             self.world.wait_for_tick()
 
     def next_weather(self, reverse=False):
@@ -1085,6 +1088,9 @@ class CameraManager(object):
             ['sensor.camera.semantic_segmentation', cc.CityScapesPalette, 'Camera Semantic Segmentation (CityScapes Palette)', {}],
             ['sensor.camera.instance_segmentation', cc.CityScapesPalette, 'Camera Instance Segmentation (CityScapes Palette)', {}],
             ['sensor.camera.instance_segmentation', cc.Raw, 'Camera Instance Segmentation (Raw)', {}],
+            ['sensor.camera.depth', cc.Raw, 'Camera Depth (Raw)', {}],
+            ['sensor.camera.depth', cc.Depth, 'Camera Depth (Gray Scale)', {}],
+            ['sensor.camera.depth', cc.LogarithmicDepth, 'Camera Depth (Logarithmic Gray Scale)', {}],
         ]
         world = self._parent.get_world()
         bp_library = world.get_blueprint_library()
@@ -1129,6 +1135,22 @@ class CameraManager(object):
         )
         self.semantic.listen(self.record_semantic)
         
+        self.depth_raw = self._parent.get_world().spawn_actor(
+            self.sensors[6][-1],
+            self._camera_transforms[1][0],
+            attach_to=self._parent,
+            attachment_type=self._camera_transforms[1][1]
+        )
+        self.depth_raw.listen(self.record_depth)
+        
+        self.depth_log = self._parent.get_world().spawn_actor(
+            self.sensors[7][-1],
+            self._camera_transforms[1][0],
+            attach_to=self._parent,
+            attachment_type=self._camera_transforms[1][1]
+        )
+        self.depth_log.listen(self.record_log)
+        
         self.count = -1
         self.record_time = time.time()
         
@@ -1146,6 +1168,16 @@ class CameraManager(object):
         if 's' in self.record:
             self.record = self.record.replace('s', '')
             event.save_to_disk('../../carla_data/' + str(self.record_time) + '_semantic.png')
+    
+    def record_depth(self, event):
+        if 'd' in self.record:
+            self.record = self.record.replace('d', '')
+            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_depth.png', cc.Depth)
+    
+    def record_log(self, event):
+        if 'l' in self.record:
+            self.record = self.record.replace('l', '')
+            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_logdepth.png', cc.LogarithmicDepth)
 
     def toggle_camera(self):
         self.transform_index = (self.transform_index + 1) % len(self._camera_transforms)
@@ -1241,9 +1273,15 @@ def game_loop(args):
 
     try:
         client = carla.Client(args.host, args.port)
-        client.set_timeout(20.0)
+        #client.set_timeout(20.0)
+        client.set_timeout(5.0)
 
         sim_world = client.get_world()
+        
+        sim_world.wait_for_tick()
+        traffic_gen.spawn_others(args, client, sim_world)
+        sim_world.wait_for_tick()
+        
         if args.sync:
             original_settings = sim_world.get_settings()
             settings = sim_world.get_settings()
@@ -1277,6 +1315,7 @@ def game_loop(args):
             sim_world.tick()
         else:
             sim_world.wait_for_tick()
+            #sim_world.tick()
 
         count = 0
         #states: driving 0, stopping 1, recording 2, waiting 3, record 4, continue 5
@@ -1293,8 +1332,12 @@ def game_loop(args):
                 sim_world.tick()
             clock.tick_busy_loop(60)
             if controller.parse_events(client, world, clock, args.sync):
+                traffic_gen.kill_others()
                 return
             world.tick(clock)
+            
+            traffic_gen.control_others()
+            
             world.render(display)
             pygame.display.flip()
             
@@ -1313,12 +1356,13 @@ def game_loop(args):
                     #world.player.set_autopilot(True)
                     state = 0
                     count = 0
+                    traffic_gen.global_stop = False
                 elif state == 1:
                     vel = world.player.get_velocity()
                     if vel.x == 0 and vel.y == 0 and vel.z == 0:
                         state = 2
                         world.camera_manager.count = 0
-                        world.camera_manager.record = 'sr' #'sir'
+                        world.camera_manager.record = 'srld' #'sirld'
                 elif state == 2:
                     if world.camera_manager.record == '':
                         preset = world.camera_manager.presets[1]
@@ -1344,6 +1388,7 @@ def game_loop(args):
                     controller._autopilot_enabled = False
                     #world.player.set_autopilot(False)
                     world.camera_manager.record_time = time.time()
+                    traffic_gen.global_stop = True
 
     finally:
 
@@ -1416,6 +1461,90 @@ def main():
         '--sync',
         action='store_true',
         help='Activate synchronous mode execution')
+    argparser.add_argument(
+        '-n', '--number-of-vehicles',
+        metavar='N',
+        default=30,
+        #default=10,
+        type=int,
+        help='Number of vehicles (default: 30)')
+    argparser.add_argument(
+        '-w', '--number-of-walkers',
+        metavar='W',
+        #default=10,
+        default=0,
+        type=int,
+        help='Number of walkers (default: 10)')
+    argparser.add_argument(
+        '--safe',
+        action='store_true',
+        help='Avoid spawning vehicles prone to accidents')
+    argparser.add_argument(
+        '--filterv',
+        metavar='PATTERN',
+        default='vehicle.*',
+        help='Filter vehicle model (default: "vehicle.*")')
+    argparser.add_argument(
+        '--generationv',
+        metavar='G',
+        default='All',
+        help='restrict to certain vehicle generation (values: "1","2","All" - default: "All")')
+    argparser.add_argument(
+        '--filterw',
+        metavar='PATTERN',
+        default='walker.pedestrian.*',
+        help='Filter pedestrian type (default: "walker.pedestrian.*")')
+    argparser.add_argument(
+        '--generationw',
+        metavar='G',
+        default='2',
+        help='restrict to certain pedestrian generation (values: "1","2","All" - default: "2")')
+    argparser.add_argument(
+        '--tm-port',
+        metavar='P',
+        default=8000,
+        type=int,
+        help='Port to communicate with TM (default: 8000)')
+    argparser.add_argument(
+        '--asynch',
+        action='store_true',
+        help='Activate asynchronous mode execution')
+    argparser.add_argument(
+        '--hybrid',
+        action='store_true',
+        help='Activate hybrid mode for Traffic Manager')
+    argparser.add_argument(
+        '-s', '--seed',
+        metavar='S',
+        type=int,
+        help='Set random device seed and deterministic mode for Traffic Manager')
+    argparser.add_argument(
+        '--seedw',
+        metavar='S',
+        default=0,
+        type=int,
+        help='Set the seed for pedestrians module')
+    argparser.add_argument(
+        '--car-lights-on',
+        action='store_true',
+        default=False,
+        help='Enable automatic car light management')
+    argparser.add_argument(
+        '--hero',
+        action='store_true',
+        default=False,
+        help='Set one of the vehicles as hero')
+    argparser.add_argument(
+        '--respawn',
+        action='store_true',
+        default=False,
+        help='Automatically respawn dormant vehicles (only in large maps)')
+    argparser.add_argument(
+        '--no-rendering',
+        action='store_true',
+        default=False,
+        help='Activate no rendering mode')    
+    
     args = argparser.parse_args()
 
     args.width, args.height = [int(x) for x in args.res.split('x')]
@@ -1428,11 +1557,11 @@ def main():
     print(__doc__)
 
     try:
-
         game_loop(args)
 
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
+        traffic_gen.kill_others()
 
 
 if __name__ == '__main__':
