@@ -165,6 +165,8 @@ client = None
 vehicles_list = []
 all_id = []
 walkers_list = []
+all_actors = []
+walker_speed = []
 
 def spawn_others(args, clint, world):
     #args = argparser.parse_args()
@@ -177,6 +179,8 @@ def spawn_others(args, clint, world):
     global vehicles_list
     global all_id
     global walkers_list
+    global all_actors
+    global walker_speed
     
     vehicles_list = []
     walkers_list = []
@@ -386,6 +390,7 @@ def spawn_others(args, clint, world):
             all_actors[i].go_to_location(world.get_random_location_from_navigation())
             # max speed
             all_actors[i].set_max_speed(float(walker_speed[int(i/2)]))
+            pass
 
         print('spawned %d vehicles and %d walkers, press Ctrl+C to exit.' % (len(vehicles_list), len(walkers_list)))
 
@@ -403,6 +408,14 @@ def control_others():
             all_vehicle_actors[i].apply_control(carla.VehicleControl(throttle=0, brake=1))
         else:
             all_vehicle_actors[i].apply_control(all_agents[i].run_step())
+    for i in range(0, len(all_id), 2):
+        if global_stop:
+            #all_actors[i].stop()
+            all_actors[i].set_max_speed(0)
+        else:
+            #all_actors[i].start()
+            all_actors[i].set_max_speed(float(walker_speed[int(i/2)]))
+
 
 
 def kill_others():
@@ -412,6 +425,7 @@ def kill_others():
         # stop walker controllers (list is [controller, actor, controller, actor ...])
         for i in range(0, len(all_id), 2):
             all_actors[i].stop()
+            pass
 
         print('\ndestroying %d walkers' % len(walkers_list))
         client.apply_batch([carla.command.DestroyActor(x) for x in all_id])
