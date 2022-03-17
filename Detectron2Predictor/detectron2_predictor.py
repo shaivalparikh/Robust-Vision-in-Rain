@@ -86,7 +86,8 @@ class Detectron2Predictor:
         self.cfg.MODEL.WEIGHTS = model_path
 
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
-        self.cfg.MODEL.DEVICE = 'cuda'
+        #self.cfg.MODEL.DEVICE = 'cuda'
+        self.cfg.MODEL.DEVICE = 'cpu'
 
         self.predictor = DefaultPredictor(self.cfg)
 
@@ -99,8 +100,10 @@ class Detectron2Predictor:
         v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
         if self.head == 'SemanticSegmentation':
+            start = time.time()
             outputs = self.predictor(image)
             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
+            print('Time:', time.time() - start)
             # print(outputs['sem_seg'].shape)
             # print(sem_seg.shape)
             # print(sem_seg)
@@ -129,13 +132,15 @@ class Detectron2Predictor:
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
         else:
-            cv2.imshow('Detectron2 Predictor', out.get_image()[:, :, ::-1])
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
+            #cv2.imshow('Detectron2 Predictor', out.get_image()[:, :, ::-1])
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
             # plt.imshow(out.get_image()[:, :, ::-1])
             # plt.show()
 
         # print(f'Time = {time.time() - start_time}')
+        return out.get_image()[:, :, ::-1]
 
     def test_image_file(self, image_path):
         image = cv2.imread(image_path)

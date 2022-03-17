@@ -1,3 +1,6 @@
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 from detectron2_predictor import Detectron2Predictor
 from utilities import create_file_list
 
