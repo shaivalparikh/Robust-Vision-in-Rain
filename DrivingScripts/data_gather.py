@@ -1380,7 +1380,7 @@ def game_loop(args):
                         state = 5
                         world.camera_manager.count = -1
             else:
-                if count > 200:
+                if count > 100:
                     state = 1
                     controller.stopping = True
                     #controller._autopilot_enabled = not controller._autopilot_enabled
@@ -1471,8 +1471,8 @@ def main():
     argparser.add_argument(
         '-w', '--number-of-walkers',
         metavar='W',
-        #default=10,
-        default=0,
+        default=10,
+        #default=0,
         type=int,
         help='Number of walkers (default: 10)')
     argparser.add_argument(

@@ -606,6 +606,7 @@ class CameraManager(object):
         self.index = None
         
         self.detectron = d2.Detectron2Predictor('SemanticSegmentation')
+        #self.detectron = d2.Detectron2Predictor('InstanceSegmentation')
         
         self.rgb = world.spawn_actor(
             self.sensors[0][-1],
