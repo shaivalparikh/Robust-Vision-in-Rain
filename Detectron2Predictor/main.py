@@ -16,7 +16,7 @@ if __name__ == '__main__':
     InstanceSegmentation
     PanopticSegmentation
     """
-    predictor = Detectron2Predictor(head='SemanticSegmentation')
+    predictor = Detectron2Predictor(head='ObjectDetection')
 
 
 
@@ -33,8 +33,8 @@ if __name__ == '__main__':
     print(sample_cityscapes_file_name_list[:5])
     print(sample_cityscapes_file_path_list[:5])
 
-    for image_path in sample_cityscapes_file_path_list[:5]:
-        predictor.test_image_file(image_path)
+    # for image_path in sample_cityscapes_file_path_list[:5]:
+    #     predictor.test_image_file(image_path)
 
 
 
@@ -44,5 +44,5 @@ if __name__ == '__main__':
     # # sample_video_file_path = 'data/videos/video-clip.mp4'
     # # predictor.test_video_file(sample_video_file_path)
 
-    # image_path = 'data/test (2).png'
-    # predictor.test_image_file(image_path)
+    image_path = 'data/Carla/test360.png'
+    predictor.test_image_file(image_path)

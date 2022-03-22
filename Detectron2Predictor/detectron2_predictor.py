@@ -25,7 +25,7 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 from detectron2.projects.point_rend import add_pointrend_config
 
 import torch
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import time
 
@@ -39,7 +39,7 @@ class Detectron2Predictor:
         # https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md
 
         if self.head == 'ObjectDetection':
-            config_file = 'COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml'
+            config_file = 'COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml' # 1531 MiB
             config_path = model_zoo.get_config_file(config_file)
             model_path  = model_zoo.get_checkpoint_url(config_file)
 
@@ -65,13 +65,13 @@ class Detectron2Predictor:
             model_path  = 'detectron2://PointRend/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes/202576688/model_final_cf6ac1.pkl'
         
         elif self.head == 'InstanceSegmentation':
-            config_file = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
+            config_file = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml' # 1539 MiB
             config_path = model_zoo.get_config_file(config_file)
             model_path  = model_zoo.get_checkpoint_url(config_file)
 
         elif self.head == 'PanopticSegmentation':
-            # config_file = 'COCO-PanopticSegmentation/panoptic_fpn_R_50_3x.yaml'
-            config_file = 'COCO-PanopticSegmentation/panoptic_fpn_R_101_3x.yaml'
+            config_file = 'COCO-PanopticSegmentation/panoptic_fpn_R_50_3x.yaml' # 720: 1945 MiB # 360: 1755 MiB
+            # config_file = 'COCO-PanopticSegmentation/panoptic_fpn_R_101_3x.yaml' # 2019 MiB
             config_path = model_zoo.get_config_file(config_file)
             model_path  = model_zoo.get_checkpoint_url(config_file)
 
@@ -86,16 +86,25 @@ class Detectron2Predictor:
         self.cfg.MODEL.WEIGHTS = model_path
 
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
-        #self.cfg.MODEL.DEVICE = 'cuda'
-        self.cfg.MODEL.DEVICE = 'cpu'
+        self.cfg.MODEL.DEVICE = 'cuda'
+        #self.cfg.MODEL.DEVICE = 'cpu'
 
         self.predictor = DefaultPredictor(self.cfg)
 
-    def test_image(self, image):
+    def test_image(self, image, show_original=False):
 
-        print(image.shape)
+        # print(image.shape)
+        
+        if show_original:
+            if GOOGLE_COLAB:
+                cv2_imshow(image)
+            else:
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                plt.figure(figsize=(16, 8))
+                plt.imshow(image)
+                plt.show()
 
-        # start_time = time.time()
+        start_time = time.time()
 
         v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
@@ -121,30 +130,31 @@ class Detectron2Predictor:
 
         else:
             outputs = self.predictor(image)
-            print(outputs['instances'])
+            # print(outputs['instances'])
             # print(outputs['instances'].pred_classes)
             # print(outputs['instances'].pred_boxes)
 
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
 
-
-
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
         else:
-            pass
-            #cv2.imshow('Detectron2 Predictor', out.get_image()[:, :, ::-1])
-            #cv2.waitKey(0)
-            #cv2.destroyAllWindows()
-            # plt.imshow(out.get_image()[:, :, ::-1])
-            # plt.show()
+            # cv2.imshow('Detectron2 Predictor', out.get_image()[:, :, ::-1])
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            
+            image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+            plt.figure(figsize=(16, 8))
+            plt.imshow(image)
+            plt.show()
 
-        # print(f'Time = {time.time() - start_time}')
+        print(f'Time = {time.time() - start_time}')
+
         return out.get_image()[:, :, ::-1]
 
-    def test_image_file(self, image_path):
+    def test_image_file(self, image_path, show_original=False):
         image = cv2.imread(image_path)
-        self.test_image(image)
+        self.test_image(image, show_original)
 
     def test_video_file(self, video_path):
         cap = cv2.VideoCapture(video_path)
