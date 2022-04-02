@@ -44,25 +44,15 @@ class Detectron2Predictor:
             model_path  = model_zoo.get_checkpoint_url(config_file)
 
         elif self.head == 'SemanticSegmentation':
-            # # Poor performance
-            # config_path = 'configs/Misc/semantic_R_50_FPN_1x.yaml'
-            # model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
-
-            # # DeepLab
-            # # https://github.com/facebookresearch/detectron2/tree/main/projects/DeepLab
-            # config_path = 'configs/Cityscapes-SemanticSegmentation/deeplab_v3_R_103_os16_mg124_poly_90k_bs16.yaml'
-            # model_path  = 'https://dl.fbaipublicfiles.com/detectron2/DeepLab/Cityscapes-SemanticSegmentation/deeplab_v3_R_103_os16_mg124_poly_90k_bs16/28041665/model_final_0dff1b.pkl'
+            # Poor performance
+            config_path = 'configs/Misc/semantic_R_50_FPN_1x.yaml'
+            model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
             
-            # # DeepLab
-            # # https://github.com/facebookresearch/detectron2/tree/main/projects/DeepLab
-            # config_path = 'configs/Cityscapes-SemanticSegmentation/deeplab_v3_plus_R_103_os16_mg124_poly_90k_bs16.yaml'
-            # model_path  = 'https://dl.fbaipublicfiles.com/detectron2/DeepLab/Cityscapes-SemanticSegmentation/deeplab_v3_plus_R_103_os16_mg124_poly_90k_bs16/28054032/model_final_a8a355.pkl'
-            
-            # PointRend
-            # https://github.com/facebookresearch/detectron2/tree/main/projects/PointRend
-            add_pointrend_config(self.cfg)
-            config_path = 'configs/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes.yaml'
-            model_path  = 'detectron2://PointRend/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes/202576688/model_final_cf6ac1.pkl'
+            # # PointRend
+            # # https://github.com/facebookresearch/detectron2/tree/main/projects/PointRend
+            # add_pointrend_config(self.cfg)
+            # config_path = 'configs/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes.yaml'
+            # model_path  = 'detectron2://PointRend/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes/202576688/model_final_cf6ac1.pkl'
         
         elif self.head == 'InstanceSegmentation':
             config_file = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml' # 1539 MiB
@@ -78,16 +68,11 @@ class Detectron2Predictor:
         # print(config_path)
         # print(model_path)
 
-        # self.cfg.MODEL.POINT_HEAD.NUM_CLASSES = 19
-        # self.cfg.MODEL.POINT_HEAD.TRAIN_NUM_POINTS = 2048
-        # self.cfg.MODEL.POINT_HEAD.SUBDIVISION_NUM_POINTS = 8192
-
         self.cfg.merge_from_file(config_path)
         self.cfg.MODEL.WEIGHTS = model_path
 
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
         self.cfg.MODEL.DEVICE = 'cuda'
-        #self.cfg.MODEL.DEVICE = 'cpu'
 
         self.predictor = DefaultPredictor(self.cfg)
 
@@ -100,7 +85,7 @@ class Detectron2Predictor:
                 cv2_imshow(image)
             else:
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                plt.figure(figsize=(16, 8))
+                plt.figure(figsize=(20, 10))
                 plt.imshow(image)
                 plt.show()
 
@@ -109,10 +94,8 @@ class Detectron2Predictor:
         v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
         if self.head == 'SemanticSegmentation':
-            start = time.time()
             outputs = self.predictor(image)
             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
-            print('Time:', time.time() - start)
             # print(outputs['sem_seg'].shape)
             # print(sem_seg.shape)
             # print(sem_seg)
@@ -144,13 +127,11 @@ class Detectron2Predictor:
             # cv2.destroyAllWindows()
             
             image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            plt.figure(figsize=(16, 8))
+            plt.figure(figsize=(20, 10))
             plt.imshow(image)
             plt.show()
 
         print(f'Time = {time.time() - start_time}')
-
-        return out.get_image()[:, :, ::-1]
 
     def test_image_file(self, image_path, show_original=False):
         image = cv2.imread(image_path)
@@ -172,3 +153,38 @@ class Detectron2Predictor:
                 break
                 
             (success, image) = cap.read()
+
+
+##################################################
+# Test the predictors
+
+from utilities import create_file_list
+if __name__ == '__main__':
+
+    """Detectron2 heads
+
+    ObjectDetection
+    SemanticSegmentation
+    InstanceSegmentation
+    PanopticSegmentation
+    """
+    predictor = Detectron2Predictor(head='ObjectDetection')
+
+    main_dir = './' # Local Jupyter
+
+    data_dir_cityscapes = main_dir + 'data/Cityscapes/leftImg8bit_trainvaltest/leftImg8bit/'
+    anno_dir_cityscapes = main_dir + 'data/Cityscapes/gtFine_trainvaltest/gtFine/'
+
+    sample_cityscapes_file_name_list, sample_cityscapes_file_path_list = create_file_list(data_dir_cityscapes + 'train/cologne')
+
+    print(sample_cityscapes_file_name_list[:5])
+    print(sample_cityscapes_file_path_list[:5])
+
+    # for image_path in sample_cityscapes_file_path_list[:5]:
+    #     predictor.test_image_file(image_path)
+
+    # # sample_video_file_path = 'data/videos/video-clip.mp4'
+    # # predictor.test_video_file(sample_video_file_path)
+
+    image_path = 'data/Carla/test360.png'
+    predictor.test_image_file(image_path)
