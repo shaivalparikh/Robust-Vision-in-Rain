@@ -1,5 +1,6 @@
 main_dir = './'
 data_dir = '/home/tunx404/Miscellaneous/data/' # Local Jupyter
+data_dir = '/home/gregory/Documents/18744/carla_data/packaging'
 
 GOOGLE_COLAB = False
 
@@ -15,6 +16,11 @@ from detectron2_predictor import Detectron2Predictor
 
 from utilities import create_file_list, imshow_jupyter
 # import carla_converter
+
+
+def imshow_jupyter(a):
+    pass
+
 
 import os
 
@@ -51,12 +57,25 @@ from detectron2.data import build_detection_test_loader
 ###############################################################
 
 data_carla_dir = data_dir + 'Carla/'
+data_carla_dir = data_dir
 
 # Dir structure:
 # <data_carla_dir>
 #     packages2
 #     packages3
 #     ...
+
+
+def convert_carla(file_list, data_dir):
+     for file in file_list:
+         file_id, level, package = file
+         image_semantic_path = os.path.join(data_dir, package, file_id + '_semantic.png')
+         image_semantic = cv2.imread(image_semantic_path)[:, :, 2] # HxWxC, BGR
+         # print(image_semantic)
+         # imshow_jupyter(image_semantic)
+         output_file_name = os.path.join(data_dir, package, file_id + '_semantic_single.png')
+         # print(output_file_name)
+         cv2.imwrite(output_file_name, image_semantic)
 
 def get_carla_file_list(data_dir, packages=[], levels=[]):
     file_list = []
@@ -76,8 +95,11 @@ def get_carla_file_list(data_dir, packages=[], levels=[]):
     
     return file_list
 
-data_carla_train_file_list = get_carla_file_list(data_carla_dir, packages=['package2', 'package4'], levels=['H', 'M', 'S'])
+data_carla_train_file_list = get_carla_file_list(data_carla_dir, packages=['package2'], levels=['H', 'M', 'S'])
 data_carla_val_file_list = get_carla_file_list(data_carla_dir, packages=['package3'], levels=['H', 'M', 'S'])
+
+#convert_carla(data_carla_train_file_list, data_carla_dir)
+convert_carla(data_carla_val_file_list, data_carla_dir)
 
 def get_carla_dicts(file_list, data_dir):
     dicts = []
@@ -176,91 +198,91 @@ carla_dataset = Detectron2CustomDataset('carla_train', 'carla_val',
                                         get_carla_train_dicts, get_carla_val_dicts)
 carla_dataset.visualize_train_dataset(num_samples=1)
 
-# ###############################################################
+###############################################################
 
-# class Detectron2Trainer:
-#     def __init__(self, train_dataset_name, val_dataset_name):
-        
-#         config_path = 'configs/Misc/semantic_R_50_FPN_1x.yaml'
-#         # model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
+class Detectron2Trainer:
+    def __init__(self, train_dataset_name, val_dataset_name):
+      
+        config_path = 'configs/Misc/semantic_R_50_FPN_1x.yaml'
+        # model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
 
-#         # All configs: https://detectron2.readthedocs.io/en/latest/modules/config.html
-        
-#         self.train_dataset_name = train_dataset_name
-#         self.val_dataset_name = val_dataset_name
+        # All configs: https://detectron2.readthedocs.io/en/latest/modules/config.html
+      
+        self.train_dataset_name = train_dataset_name
+        self.val_dataset_name = val_dataset_name
 
-#         self.cfg = get_cfg()
-#         self.cfg.merge_from_file(config_path)
+        self.cfg = get_cfg()
+        self.cfg.merge_from_file(config_path)
 
-#         # self.cfg.MODEL.WEIGHTS = model_path
-#         self.cfg.MODEL.DEVICE = 'cuda'
-#         # self.cfg.MODEL.DEVICE = 'cpu'
+        # self.cfg.MODEL.WEIGHTS = model_path
+        self.cfg.MODEL.DEVICE = 'cuda'
+        # self.cfg.MODEL.DEVICE = 'cpu'
 
-#         self.cfg.DATASETS.TRAIN = (self.train_dataset_name,)
-#         self.cfg.DATASETS.TEST = (self.val_dataset_name,)
+        self.cfg.DATASETS.TRAIN = (self.train_dataset_name,)
+        self.cfg.DATASETS.TEST = (self.val_dataset_name,)
 
-#         self.cfg.DATALOADER.NUM_WORKERS = 4
+        self.cfg.DATALOADER.NUM_WORKERS = 4
 
-#         # Number of images per batch across all machines. This is also the number
-#         # of training images per step (i.e. per iteration).
-#         self.cfg.SOLVER.IMS_PER_BATCH = 1
-#         self.cfg.SOLVER.BASE_LR = 0.01
-#         self.cfg.SOLVER.MAX_ITER = 1000
-#         self.cfg.SOLVER.GAMMA = 0.1
-#         # The iteration number to decrease learning rate by GAMMA.
-#         self.cfg.SOLVER.STEPS = (300, 600)
-#         # Save a checkpoint after every this number of iterations
-#         self.cfg.SOLVER.CHECKPOINT_PERIOD = 200
+        # Number of images per batch across all machines. This is also the number
+        # of training images per step (i.e. per iteration).
+        self.cfg.SOLVER.IMS_PER_BATCH = 1 #set higher if possible
+        self.cfg.SOLVER.BASE_LR = 0.01
+        self.cfg.SOLVER.MAX_ITER = 2000 #set higher**
+        self.cfg.SOLVER.GAMMA = 0.1
+        # The iteration number to decrease learning rate by GAMMA.
+        self.cfg.SOLVER.STEPS = (300, 600) #set higher to adjust discontinuity points**
+        # Save a checkpoint after every this number of iterations
+        self.cfg.SOLVER.CHECKPOINT_PERIOD = 200 #set higher**
 
-#         self.cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 0
-#         classes = MetadataCatalog.get(self.train_dataset_name).stuff_classes
-#         self.cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(classes)
-        
-#         # Directory where output files are written
-#         self.cfg.OUTPUT_DIR = './output'
-        
-#         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
-#         self.trainer = DefaultTrainer(self.cfg)
-        
-#         self.evaluator = SemSegEvaluator(self.val_dataset_name, output_dir=self.cfg.OUTPUT_DIR)
-        
-#         self.trainer.register_hooks([hooks.EvalHook(0, lambda: self.trainer.test(self.cfg, self.trainer.model, self.evaluator))])
-        
-#         self.predictor = None
-        
-#     def load(self):
-#         self.trainer.resume_or_load(resume=True)
-        
-#     def train(self):
-#         self.trainer.train()
-        
-#     def get_predictor(self):
-#         last_checkpoint = 'model_final.pth'
-#         with open(os.path.join(self.cfg.OUTPUT_DIR, 'last_checkpoint')) as file:
-#             last_checkpoint = file.read()
-#         print('Last checkpoint: ' + last_checkpoint)
-            
-#         self.cfg.MODEL.WEIGHTS = os.path.join(self.cfg.OUTPUT_DIR, last_checkpoint)
-#         self.predictor = DefaultPredictor(self.cfg)
-        
-#     def test(self):
-#         self.get_predictor()
-#         self.trainer.test(self.cfg, self.predictor.model, self.evaluator)
+        self.cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 0
+        classes = MetadataCatalog.get(self.train_dataset_name).stuff_classes
+        self.cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(classes)
+      
+        # Directory where output files are written
+        self.cfg.OUTPUT_DIR = './output'
+      
+        os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
+        self.trainer = DefaultTrainer(self.cfg)
+      
+        self.evaluator = SemSegEvaluator(self.val_dataset_name, output_dir=self.cfg.OUTPUT_DIR)
+      
+        self.trainer.register_hooks([hooks.EvalHook(0, lambda: self.trainer.test(self.cfg, self.trainer.model, self.evaluator))])
+      
+        self.predictor = None
+      
+    def load(self):
+        self.trainer.resume_or_load(resume=True)
+      
+    def train(self):
+        self.trainer.train()
+      
+    def get_predictor(self):
+        last_checkpoint = 'model_final.pth'
+        with open(os.path.join(self.cfg.OUTPUT_DIR, 'last_checkpoint')) as file:
+            last_checkpoint = file.read()
+        print('Last checkpoint: ' + last_checkpoint)
+          
+        self.cfg.MODEL.WEIGHTS = os.path.join(self.cfg.OUTPUT_DIR, last_checkpoint)
+        self.predictor = DefaultPredictor(self.cfg)
+      
+    def test(self):
+        self.get_predictor()
+        self.trainer.test(self.cfg, self.predictor.model, self.evaluator)
 
-# trainer = Detectron2Trainer('carla_train', 'carla_val')
+trainer = Detectron2Trainer('carla_train', 'carla_val')
 
-# ###############################################################
+###############################################################
 
-# trainer.load()
-# trainer.train()
+trainer.load()
+trainer.train()
 
-# ###############################################################
+###############################################################
 
-# trainer.test()
+trainer.test()
 
-# ###############################################################
+###############################################################
 
-# trainer.get_predictor()
-# carla_dataset.visualize_val_dataset(trainer.predictor, num_samples=5)
+trainer.get_predictor()
+carla_dataset.visualize_val_dataset(trainer.predictor, num_samples=5)
 
-# ###############################################################
+###############################################################
