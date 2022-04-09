@@ -95,11 +95,11 @@ def get_carla_file_list(data_dir, packages=[], levels=[]):
     
     return file_list
 
-data_carla_train_file_list = get_carla_file_list(data_carla_dir, packages=['package2'], levels=['H', 'M', 'S'])
-data_carla_val_file_list = get_carla_file_list(data_carla_dir, packages=['package3'], levels=['H', 'M', 'S'])
+data_carla_train_file_list = get_carla_file_list(data_carla_dir, packages=['package2', 'package3', 'package4', 'package5', 'package6', 'package7', 'package9',], levels=['H', 'M', 'S'])
+data_carla_val_file_list = get_carla_file_list(data_carla_dir, packages=['package8'], levels=['H', 'M', 'S'])
 
-#convert_carla(data_carla_train_file_list, data_carla_dir)
-convert_carla(data_carla_val_file_list, data_carla_dir)
+convert_carla(data_carla_train_file_list, data_carla_dir)
+#convert_carla(data_carla_val_file_list, data_carla_dir)
 
 def get_carla_dicts(file_list, data_dir):
     dicts = []
@@ -227,12 +227,12 @@ class Detectron2Trainer:
         # of training images per step (i.e. per iteration).
         self.cfg.SOLVER.IMS_PER_BATCH = 1 #set higher if possible
         self.cfg.SOLVER.BASE_LR = 0.01
-        self.cfg.SOLVER.MAX_ITER = 2000 #set higher**
+        self.cfg.SOLVER.MAX_ITER = 1000000 #set higher**
         self.cfg.SOLVER.GAMMA = 0.1
         # The iteration number to decrease learning rate by GAMMA.
-        self.cfg.SOLVER.STEPS = (300, 600) #set higher to adjust discontinuity points**
+        self.cfg.SOLVER.STEPS = (30000, 60000, 90000) #set higher to adjust discontinuity points**
         # Save a checkpoint after every this number of iterations
-        self.cfg.SOLVER.CHECKPOINT_PERIOD = 200 #set higher**
+        self.cfg.SOLVER.CHECKPOINT_PERIOD = 5000 #set higher**
 
         self.cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 0
         classes = MetadataCatalog.get(self.train_dataset_name).stuff_classes
