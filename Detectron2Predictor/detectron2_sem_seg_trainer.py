@@ -21,7 +21,6 @@ from utilities import create_file_list, imshow_jupyter
 def imshow_jupyter(a):
     pass
 
-
 import os
 
 import cv2

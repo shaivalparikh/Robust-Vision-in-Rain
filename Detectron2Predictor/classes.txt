@@ -1,0 +1,132 @@
+    Label(  'unlabeled'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+    Label(  'ego vehicle'          ,  1 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+    Label(  'rectification border' ,  2 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+    Label(  'out of roi'           ,  3 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+    Label(  'static'               ,  4 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+    Label(  'dynamic'              ,  5 ,      255 , 'void'            , 0       , False        , True         , (111, 74,  0) ),
+    Label(  'ground'               ,  6 ,      255 , 'void'            , 0       , False        , True         , ( 81,  0, 81) ),
+    Label(  'road'                 ,  7 ,        0 , 'flat'            , 1       , False        , False        , (128, 64,128) ),
+    Label(  'sidewalk'             ,  8 ,        1 , 'flat'            , 1       , False        , False        , (244, 35,232) ),
+    Label(  'parking'              ,  9 ,      255 , 'flat'            , 1       , False        , True         , (250,170,160) ),
+    Label(  'rail track'           , 10 ,      255 , 'flat'            , 1       , False        , True         , (230,150,140) ),
+    Label(  'building'             , 11 ,        2 , 'construction'    , 2       , False        , False        , ( 70, 70, 70) ),
+    Label(  'wall'                 , 12 ,        3 , 'construction'    , 2       , False        , False        , (102,102,156) ),
+    Label(  'fence'                , 13 ,        4 , 'construction'    , 2       , False        , False        , (190,153,153) ),
+    Label(  'guard rail'           , 14 ,      255 , 'construction'    , 2       , False        , True         , (180,165,180) ),
+    Label(  'bridge'               , 15 ,      255 , 'construction'    , 2       , False        , True         , (150,100,100) ),
+    Label(  'tunnel'               , 16 ,      255 , 'construction'    , 2       , False        , True         , (150,120, 90) ),
+    Label(  'pole'                 , 17 ,        5 , 'object'          , 3       , False        , False        , (153,153,153) ),
+    Label(  'polegroup'            , 18 ,      255 , 'object'          , 3       , False        , True         , (153,153,153) ),
+    Label(  'traffic light'        , 19 ,        6 , 'object'          , 3       , False        , False        , (250,170, 30) ),
+    Label(  'traffic sign'         , 20 ,        7 , 'object'          , 3       , False        , False        , (220,220,  0) ),
+    Label(  'vegetation'           , 21 ,        8 , 'nature'          , 4       , False        , False        , (107,142, 35) ),
+    Label(  'terrain'              , 22 ,        9 , 'nature'          , 4       , False        , False        , (152,251,152) ),
+    Label(  'sky'                  , 23 ,       10 , 'sky'             , 5       , False        , False        , ( 70,130,180) ),
+    Label(  'person'               , 24 ,       11 , 'human'           , 6       , True         , False        , (220, 20, 60) ),
+    Label(  'rider'                , 25 ,       12 , 'human'           , 6       , True         , False        , (255,  0,  0) ),
+    Label(  'car'                  , 26 ,       13 , 'vehicle'         , 7       , True         , False        , (  0,  0,142) ),
+    Label(  'truck'                , 27 ,       14 , 'vehicle'         , 7       , True         , False        , (  0,  0, 70) ),
+    Label(  'bus'                  , 28 ,       15 , 'vehicle'         , 7       , True         , False        , (  0, 60,100) ),
+    Label(  'caravan'              , 29 ,      255 , 'vehicle'         , 7       , True         , True         , (  0,  0, 90) ),
+    Label(  'trailer'              , 30 ,      255 , 'vehicle'         , 7       , True         , True         , (  0,  0,110) ),
+    Label(  'train'                , 31 ,       16 , 'vehicle'         , 7       , True         , False        , (  0, 80,100) ),
+    Label(  'motorcycle'           , 32 ,       17 , 'vehicle'         , 7       , True         , False        , (  0,  0,230) ),
+    Label(  'bicycle'              , 33 ,       18 , 'vehicle'         , 7       , True         , False        , (119, 11, 32) ),
+    Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
+
+
+'road'         ,  0,        7
+'sidewalk'     ,  1,        8
+'building'     ,  2,       11
+'wall'         ,  3,       12
+'fence'        ,  4,       13
+'pole'         ,  5,       17
+'traffic light',  6,       19
+'traffic sign' ,  7,       20
+'vegetation'   ,  8,       21
+'terrain'      ,  9,       22
+'sky'          , 10,       23
+'person'       , 11,       24
+'rider'        , 12,       25
+'car'          , 13,       26
+'truck'        , 14,       27
+'bus'          , 15,       28
+'train'        , 16,       31
+'motorcycle'   , 17,       32
+'bicycle'      , 18,       33
+
+
+Unlabeled    0 : 255,
+Building     1 : 2,
+Fence        2 : 4,
+Other        3 : 255,
+Pedestrian   4 : 11,
+Pole         5 : 5,
+RoadLine     6 : 0,
+Road         7 : 0,
+SideWalk     8 : 1,
+Vegetation   9 : 8,
+Vehicles     10: 13,
+Wall         11: 3,
+TrafficSign  12: 7,
+Sky          13: 10,
+Ground       14: 255,
+Bridge       15: 255,
+RailTrack    16: 255,
+GuardRail    17: 255,
+TrafficLight 18: 6,
+Static       19: 255,
+Dynamic      20: 255,
+Water        21: 255,
+Terrain      22: 9
+
+
+0   Unlabeled   
+1   Building    
+2   Fence       
+3   Other       
+4   Pedestrian  
+5   Pole        
+6   RoadLine    
+7   Road        
+8   SideWalk    
+9   Vegetation  
+10  Vehicles    
+11  Wall        
+12  TrafficSign 
+13  Sky         
+14  Ground      
+15  Bridge      
+16  RailTrack   
+17  GuardRail   
+18  TrafficLight
+19  Static      
+20  Dynamic     
+21  Water       
+22  Terrain     
+
+
+
+    0 : 255, # Unlabeled   
+    1 :   2, # Building    
+    2 :   4, # Fence       
+    3 : 255, # Other       
+    4 :  11, # Pedestrian  
+    5 :   5, # Pole        
+    6 :   0, # RoadLine    
+    7 :   0, # Road        
+    8 :   1, # SideWalk    
+    9 :   8, # Vegetation  
+    10:  13, # Vehicles    
+    11:   3, # Wall        
+    12:   7, # TrafficSign 
+    13:  10, # Sky         
+    14: 255, # Ground      
+    15: 255, # Bridge      
+    16: 255, # RailTrack   
+    17: 255, # GuardRail   
+    18:   6, # TrafficLight
+    19: 255, # Static      
+    20: 255, # Dynamic     
+    21: 255, # Water       
+    22:   9  # Terrain     
