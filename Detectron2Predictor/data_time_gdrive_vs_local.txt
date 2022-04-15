@@ -1,0 +1,19 @@
+[04/15 01:35:28 d2.engine.train_loop]: Starting training from iteration 0
+/usr/local/lib/python3.7/dist-packages/detectron2/structures/image_list.py:88: UserWarning: __floordiv__ is deprecated, and its behavior will change in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values. To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor').
+  max_size = (max_size + (stride - 1)) // stride * stride
+[04/15 01:37:55 d2.utils.events]:  eta: 1 day, 12:13:47  iter: 19  total_loss: 2.728  time: 6.8699  data_time: 6.3757  lr: 0.00019981  max_mem: 12127M
+[04/15 01:39:56 d2.utils.events]:  eta: 1 day, 10:32:43  iter: 39  total_loss: 1.704  time: 6.4441  data_time: 5.1416  lr: 0.00039961  max_mem: 12127M
+[04/15 01:41:58 d2.utils.events]:  eta: 1 day, 10:18:38  iter: 59  total_loss: 1.504  time: 6.3279  data_time: 5.1877  lr: 0.00059941  max_mem: 12127M
+[04/15 01:43:59 d2.utils.events]:  eta: 1 day, 10:11:15  iter: 79  total_loss: 1.559  time: 6.2554  data_time: 5.1242  lr: 0.00079921  max_mem: 12127M
+
+
+
+
+
+[04/15 02:12:37 d2.engine.train_loop]: Starting training from iteration 0
+/usr/local/lib/python3.7/dist-packages/detectron2/structures/image_list.py:88: UserWarning: __floordiv__ is deprecated, and its behavior will change in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values. To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor').
+  max_size = (max_size + (stride - 1)) // stride * stride
+[04/15 02:13:05 d2.utils.events]:  eta: 7:15:51  iter: 19  total_loss: 3.463  time: 1.3062  data_time: 0.4170  lr: 0.00019981  max_mem: 12127M
+[04/15 02:13:32 d2.utils.events]:  eta: 7:19:14  iter: 39  total_loss: 1.95  time: 1.3382  data_time: 0.4349  lr: 0.00039961  max_mem: 12127M
+[04/15 02:13:58 d2.utils.events]:  eta: 7:18:48  iter: 59  total_loss: 1.588  time: 1.3323  data_time: 0.3907  lr: 0.00059941  max_mem: 12127M
+[04/15 02:14:25 d2.utils.events]:  eta: 7:16:40  iter: 79  total_loss: 1.503  time: 1.3262  data_time: 0.3758  lr: 0.00079921  max_mem: 12127M
