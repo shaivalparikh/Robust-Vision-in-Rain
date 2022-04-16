@@ -1,3 +1,5 @@
 ConversionScripts/converted_images
 ConversionScripts/converted_images/*
 *.pyc
+Detectron2Predictor/data/*
+Detectron2Predictor/output/
