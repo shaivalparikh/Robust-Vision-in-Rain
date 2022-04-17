@@ -8,14 +8,14 @@ from PIL import Image
 def make_dataset(root, is_train):
     if is_train:
 
-        input = open(os.path.join(root, 'data/train_input.txt'))
+        input = open(os.path.join(root, 'data/train_images.txt'))
         ground_t = open(os.path.join(root, 'data/train_gt.txt'))
         depth_t = open(os.path.join(root, 'data/train_depth.txt'))
-        image = [(os.path.join(root, 'train', img_name.strip('\n'))) for img_name in
+        image = [(os.path.join(root, 'data/images', img_name.strip('\n'))) for img_name in
                  input]
-        gt = [(os.path.join(root, 'image', img_name.strip('\n'))) for img_name in
+        gt = [(os.path.join(root, 'data/gt', img_name.strip('\n'))) for img_name in
                  ground_t]
-        depth = [(os.path.join(root, 'depth', img_name.strip('\n'))) for img_name in
+        depth = [(os.path.join(root, 'data/depth', img_name.strip('\n'))) for img_name in
               depth_t]
 
         input.close()
@@ -27,15 +27,15 @@ def make_dataset(root, is_train):
 
     else:
 
-        input = open(os.path.join(root, 'data/test_input.txt'))
+        input = open(os.path.join(root, 'data/test_images.txt'))
         ground_t = open(os.path.join(root, 'data/test_gt.txt'))
         depth_t = open(os.path.join(root, 'data/test_depth.txt'))
 
-        image = [(os.path.join(root, 'test', img_name.strip('\n'))) for img_name in
+        image = [(os.path.join(root, 'data/images', img_name.strip('\n'))) for img_name in
                  input]
-        gt = [(os.path.join(root, 'image', img_name.strip('\n'))) for img_name in
+        gt = [(os.path.join(root, 'data/gt', img_name.strip('\n'))) for img_name in
               ground_t]
-        depth = [(os.path.join(root, 'depth', img_name.strip('\n'))) for img_name in
+        depth = [(os.path.join(root, 'data/depth', img_name.strip('\n'))) for img_name in
                  depth_t]
 
         input.close()
