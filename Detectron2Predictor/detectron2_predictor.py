@@ -180,9 +180,10 @@ class Detectron2Predictor:
 
 if __name__ == '__main__':
     
-    predictor = Detectron2Predictor(head='SemanticSegmentation', model_path='output_all_40k/model_final.pth')
+    predictor_clear = Detectron2Predictor(head='SemanticSegmentation', model_path='output_clear_20k/model_final.pth')
+    predictor_all = Detectron2Predictor(head='SemanticSegmentation', model_path='output_all_40k/model_final.pth')
     sample_file_path = '/home/tunx404/Miscellaneous/data/CarlaNight/night_packaging/package10/1649876436.6209295_clear.png'
-    predictor.test_image_file(sample_file_path)
+    predictor_all.test_image_file(sample_file_path, show_original=True)
 
     # sample_video_file_path = 'data/videos/video-clip.mp4'
     # predictor.test_video_file(sample_video_file_path)
