@@ -91,7 +91,7 @@ class Detectron2Predictor:
 
         self.predictor = DefaultPredictor(self.cfg)
 
-    def test_image(self, image, show_original=False):
+    def test_image(self, image, show_original=False, output_numpy=False):
 
         # print(image.shape)
         
@@ -138,7 +138,10 @@ class Detectron2Predictor:
             # print(outputs['instances'].pred_boxes)
 
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
-
+        
+        if output_numpy == True:
+            return out.get_image()[:, :, ::-1]
+        
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
         else:

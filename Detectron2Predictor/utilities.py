@@ -2,7 +2,7 @@ import os
 from tkinter import Tcl
 
 # Create a list of all files within a directory
-def create_file_list(dir, sub_dir=''):
+def create_file_list(dir='/', sub_dir=''):
     file_name_list = os.listdir(os.path.join(dir, sub_dir))
     file_name_list = list(Tcl().call('lsort', '-dict', file_name_list)) # Sort by filename
     file_path_list = file_name_list.copy()
