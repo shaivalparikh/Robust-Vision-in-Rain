@@ -30,7 +30,7 @@ args = {
     'lr_decay': 0.9,
     'weight_decay': 0,
     'momentum': 0.9,
-    'resume_snapshot': '',
+    'resume_snapshot': '13000',
     'val_freq': 50000000,
     'img_size_h': 512,
 	'img_size_w': 1024,
@@ -52,7 +52,7 @@ triple_transform = triple_transforms.Compose([
 ])
 
 train_set = ImageFolder(train_raincityscapes_path, transform=transform, target_transform=transform, triple_transform=triple_transform, is_train=True)
-train_loader = DataLoader(train_set, batch_size=args['train_batch_size'], num_workers=8, shuffle=True)
+train_loader = DataLoader(train_set, batch_size=args['train_batch_size'], num_workers=16, shuffle=True)
 test1_set = ImageFolder(test_raincityscapes_path, transform=transform, target_transform=transform, is_train=False)
 test1_loader = DataLoader(test1_set, batch_size=2)
 
@@ -113,6 +113,7 @@ def train(net, optimizer):
 
             loss = loss_net + loss_depth
 
+            #print(torch.cuda.memory_summary())
             loss.backward()
 
             optimizer.step()
@@ -138,6 +139,8 @@ def train(net, optimizer):
 
             if curr_iter > args['iter_num']:
                 return
+            
+            del inputs, gts, dps, loss_net, loss_depth, batch_size, result, depth_pred, loss
 
 
 def validate(net, curr_iter, optimizer):
