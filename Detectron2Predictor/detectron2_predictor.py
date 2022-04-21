@@ -1,33 +1,31 @@
 GOOGLE_COLAB = False
 
-""" Installation
+import torch
 
-python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
-# (add --user if you don't have permission)
+import matplotlib.pyplot as plt
 
-# Or, to install it from a local clone:
-git clone https://github.com/facebookresearch/detectron2.git
-python -m pip install -e detectron2
-"""
-import detectron2
-
-import numpy as np
-import os, json, cv2, random
+import time
+import cv2
 if GOOGLE_COLAB:
     from google.colab.patches import cv2_imshow
+
+import detectron2
 
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
-from detectron2.utils.visualizer import Visualizer, ColorMode
-from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.utils.visualizer import Visualizer
+from detectron2.data import MetadataCatalog
 
-from detectron2.projects.point_rend import add_pointrend_config
+# from detectron2.projects.point_rend import add_pointrend_config
 
-import torch
-import matplotlib.pyplot as plt
+"""Detectron2 heads
 
-import time
+ObjectDetection
+SemanticSegmentation
+InstanceSegmentation
+PanopticSegmentation
+"""
 
 class Detectron2Predictor:
     def __init__(self, head='InstanceSegmentation'):
@@ -168,23 +166,11 @@ if __name__ == '__main__':
     InstanceSegmentation
     PanopticSegmentation
     """
-    predictor = Detectron2Predictor(head='ObjectDetection')
+    predictor = Detectron2Predictor(head='PanopticSegmentation')
+    
+    sample_file_path = '/home/tunx404/Miscellaneous/data/CarlaNight/night_packaging/package10/1649876436.6209295_clear.png'
 
-    main_dir = './' # Local Jupyter
-
-    data_dir_cityscapes = main_dir + 'data/Cityscapes/leftImg8bit_trainvaltest/leftImg8bit/'
-    anno_dir_cityscapes = main_dir + 'data/Cityscapes/gtFine_trainvaltest/gtFine/'
-
-    sample_cityscapes_file_name_list, sample_cityscapes_file_path_list = create_file_list(data_dir_cityscapes + 'train/cologne')
-
-    print(sample_cityscapes_file_name_list[:5])
-    print(sample_cityscapes_file_path_list[:5])
-
-    # for image_path in sample_cityscapes_file_path_list[:5]:
-    #     predictor.test_image_file(image_path)
+    predictor.test_image_file(sample_file_path)
 
     # # sample_video_file_path = 'data/videos/video-clip.mp4'
     # # predictor.test_video_file(sample_video_file_path)
-
-    image_path = 'data/Carla/test360.png'
-    predictor.test_image_file(image_path)

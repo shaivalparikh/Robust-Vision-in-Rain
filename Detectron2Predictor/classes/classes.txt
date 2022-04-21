@@ -1,0 +1,138 @@
+CITYSCAPES
+
+Label(  'unlabeled'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+Label(  'ego vehicle'          ,  1 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+Label(  'rectification border' ,  2 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+Label(  'out of roi'           ,  3 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+Label(  'static'               ,  4 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+Label(  'dynamic'              ,  5 ,      255 , 'void'            , 0       , False        , True         , (111, 74,  0) ),
+Label(  'ground'               ,  6 ,      255 , 'void'            , 0       , False        , True         , ( 81,  0, 81) ),
+Label(  'road'                 ,  7 ,        0 , 'flat'            , 1       , False        , False        , (128, 64,128) ),
+Label(  'sidewalk'             ,  8 ,        1 , 'flat'            , 1       , False        , False        , (244, 35,232) ),
+Label(  'parking'              ,  9 ,      255 , 'flat'            , 1       , False        , True         , (250,170,160) ),
+Label(  'rail track'           , 10 ,      255 , 'flat'            , 1       , False        , True         , (230,150,140) ),
+Label(  'building'             , 11 ,        2 , 'construction'    , 2       , False        , False        , ( 70, 70, 70) ),
+Label(  'wall'                 , 12 ,        3 , 'construction'    , 2       , False        , False        , (102,102,156) ),
+Label(  'fence'                , 13 ,        4 , 'construction'    , 2       , False        , False        , (190,153,153) ),
+Label(  'guard rail'           , 14 ,      255 , 'construction'    , 2       , False        , True         , (180,165,180) ),
+Label(  'bridge'               , 15 ,      255 , 'construction'    , 2       , False        , True         , (150,100,100) ),
+Label(  'tunnel'               , 16 ,      255 , 'construction'    , 2       , False        , True         , (150,120, 90) ),
+Label(  'pole'                 , 17 ,        5 , 'object'          , 3       , False        , False        , (153,153,153) ),
+Label(  'polegroup'            , 18 ,      255 , 'object'          , 3       , False        , True         , (153,153,153) ),
+Label(  'traffic light'        , 19 ,        6 , 'object'          , 3       , False        , False        , (250,170, 30) ),
+Label(  'traffic sign'         , 20 ,        7 , 'object'          , 3       , False        , False        , (220,220,  0) ),
+Label(  'vegetation'           , 21 ,        8 , 'nature'          , 4       , False        , False        , (107,142, 35) ),
+Label(  'terrain'              , 22 ,        9 , 'nature'          , 4       , False        , False        , (152,251,152) ),
+Label(  'sky'                  , 23 ,       10 , 'sky'             , 5       , False        , False        , ( 70,130,180) ),
+Label(  'person'               , 24 ,       11 , 'human'           , 6       , True         , False        , (220, 20, 60) ),
+Label(  'rider'                , 25 ,       12 , 'human'           , 6       , True         , False        , (255,  0,  0) ),
+Label(  'car'                  , 26 ,       13 , 'vehicle'         , 7       , True         , False        , (  0,  0,142) ),
+Label(  'truck'                , 27 ,       14 , 'vehicle'         , 7       , True         , False        , (  0,  0, 70) ),
+Label(  'bus'                  , 28 ,       15 , 'vehicle'         , 7       , True         , False        , (  0, 60,100) ),
+Label(  'caravan'              , 29 ,      255 , 'vehicle'         , 7       , True         , True         , (  0,  0, 90) ),
+Label(  'trailer'              , 30 ,      255 , 'vehicle'         , 7       , True         , True         , (  0,  0,110) ),
+Label(  'train'                , 31 ,       16 , 'vehicle'         , 7       , True         , False        , (  0, 80,100) ),
+Label(  'motorcycle'           , 32 ,       17 , 'vehicle'         , 7       , True         , False        , (  0,  0,230) ),
+Label(  'bicycle'              , 33 ,       18 , 'vehicle'         , 7       , True         , False        , (119, 11, 32) ),
+Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
+
+map_cityscapes_id_to_carla_id = { 
+     0:  0, # unlabeled           
+     1:  0, # ego vehicle         
+     2:  0, # rectification border
+     3:  0, # out of roi          
+     4: 19, # static              
+     5: 20, # dynamic             
+     6: 14, # ground              
+     7:  7, # road                
+     8:  8, # sidewalk            
+     9:  0, # parking             
+    10: 16, # rail track          
+    11:  1, # building            
+    12: 11, # wall                
+    13:  2, # fence               
+    14: 17, # guard rail          
+    15: 15, # bridge              
+    16:  0, # tunnel              
+    17:  5, # pole                
+    18:  0, # polegroup           
+    19: 18, # traffic light       
+    20: 12, # traffic sign        
+    21:  9, # vegetation          
+    22: 22, # terrain             
+    23: 13, # sky                 
+    24:  4, # person              
+    25:  4, # rider               
+    26: 10, # car                 
+    27: 10, # truck               
+    28: 10, # bus                 
+    29:  0, # caravan             
+    30:  0, # trailer             
+    31: 10, # train               
+    32: 10, # motorcycle          
+    33: 10, # bicycle             
+    -1:  0  # license plate       
+}
+
+#####################################################
+
+CARLA
+
+Unlabeled    0 : 0 
+Building     1 : 1 
+Fence        2 : 2 
+Other        3 : 3 
+Pedestrian   4 : 4 
+Pole         5 : 5 
+RoadLine     6 : 6 
+Road         7 : 6 
+SideWalk     8 : 7 
+Vegetation   9 : 8 
+Vehicles     10: 9 
+Wall         11: 10
+TrafficSign  12: 11
+Sky          13: 12
+Ground       14: 13
+Bridge       15: 14
+RailTrack    16: 15
+GuardRail    17: 16
+TrafficLight 18: 17
+Static       19: 18
+Dynamic      20: 19
+Water        21: 20
+Terrain      22: 21
+
+map_carla_id_to_train_id = {
+    0 :  0, # Unlabeled    # Unlabeled    # (0, 0, 0)
+    1 :  1, # Building     # Building     # (70, 70, 70)
+    2 :  2, # Fence        # Fence        # (100, 40, 40)
+    3 :  0, # Other        #
+    4 :  3, # Pedestrian   # Pedestrian   # (220, 20, 60)
+    5 :  4, # Pole         # Pole         # (153, 153, 153)
+    6 :  5, # RoadLine     #
+    7 :  5, # Road         # Road         # (128, 64, 128)
+    8 :  6, # SideWalk     # SideWalk     # (244, 35, 232)
+    9 :  7, # Vegetation   # Vegetation   # (107, 142, 35)
+    10:  8, # Vehicles     # Vehicles     # (0, 0, 142)
+    11:  9, # Wall         # Wall         # (102, 102, 156)
+    12: 10, # TrafficSign  # TrafficSign  # (220, 220, 0)
+    13: 11, # Sky          # Sky          # (70, 130, 180)
+    14:  0, # Ground       #
+    15:  0, # Bridge       #
+    16:  0, # RailTrack    #
+    17:  0, # GuardRail    #
+    18: 12, # TrafficLight # TrafficLight # (250, 170, 30)
+    19:  0, # Static       #
+    20:  0, # Dynamic      #
+    21:  0, # Water        #
+    22: 13  # Terrain      # Terrain      # (145, 170, 100)
+}
+
+carla_classes = ['unlabeled', 'building', 'fence', 'other', 'pedestrian', 'pole', 'roadline', 'road', 'sidewalk', 'vegetation', 'vehicles', 'wall', 'trafficsign', 'sky', 'ground', 'bridge', 'railtrack', 'guardrail', 'trafficlight', 'static', 'dynamic', 'water', 'terrain']
+carla_colors = [(0, 0, 0), (70, 70, 70), (100, 40, 40), (55, 90, 80), (220, 20, 60), (153, 153, 153), (157, 234, 50), (128, 64, 128), (244, 35, 232), (107, 142, 35), (0, 0, 142), (102, 102, 156), (220, 220, 0), (70, 130, 180), (81, 0, 81), (150, 100, 100), (230, 150, 140), (180, 165, 180), (250, 170, 30), (110, 190, 160), (170, 120, 50), (45, 60, 150), (145, 170, 100)]
+
+#####################################################
+
+# road & roadline merged
+train_classes = ['Unlabeled', 'Building', 'Fence', 'Pedestrian', 'Pole', 'Road', 'SideWalk', 'Vegetation', 'Vehicles', 'Wall', 'TrafficSign', 'Sky', 'TrafficLight', 'Terrain']
+train_colors = [(0, 0, 0), (70, 70, 70), (100, 40, 40), (220, 20, 60), (153, 153, 153), (128, 64, 128), (244, 35, 232), (107, 142, 35), (0, 0, 142), (102, 102, 156), (220, 220, 0), (70, 130, 180), (250, 170, 30), (145, 170, 100)]
