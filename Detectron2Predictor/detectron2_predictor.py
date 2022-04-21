@@ -28,7 +28,7 @@ PanopticSegmentation
 """
 
 class Detectron2Predictor:
-    def __init__(self, head='InstanceSegmentation'):
+    def __init__(self, head='SemanticSegmentation', model_path=None):
         self.cfg = get_cfg()
 
         self.head = head
@@ -44,7 +44,8 @@ class Detectron2Predictor:
         elif self.head == 'SemanticSegmentation':
             # Poor performance
             config_path = 'configs/Misc/semantic_R_50_FPN_1x.yaml'
-            model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
+            if model_path is None:
+                model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
             
             # # PointRend
             # # https://github.com/facebookresearch/detectron2/tree/main/projects/PointRend
@@ -156,16 +157,8 @@ class Detectron2Predictor:
 ##################################################
 # Test the predictors
 
-from utilities import create_file_list
 if __name__ == '__main__':
-
-    """Detectron2 heads
-
-    ObjectDetection
-    SemanticSegmentation
-    InstanceSegmentation
-    PanopticSegmentation
-    """
+    
     predictor = Detectron2Predictor(head='PanopticSegmentation')
     
     sample_file_path = '/home/tunx404/Miscellaneous/data/CarlaNight/night_packaging/package10/1649876436.6209295_clear.png'
