@@ -295,6 +295,13 @@ class DGNLNet(nn.Module):
         return x
 
 
+# device = torch.device("cuda:0")
+#
+# net = GDNLNet().to(device)
+# summary(net, (3, 512, 1024))
+
+
+
 class basic_NL(nn.Module):
     def __init__(self, num_features=64):
         super(basic_NL, self).__init__()
@@ -411,6 +418,14 @@ class basic(nn.Module):
 
         x = (x * self.std + self.mean).clamp(min=0, max=1)
         return x
+
+
+
+# device = torch.device("cuda:0")
+#
+# net = basic().to(device)
+# summary(net, (3,512,1024))
+
 
 
 

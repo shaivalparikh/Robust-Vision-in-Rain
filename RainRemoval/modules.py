@@ -48,14 +48,9 @@ class DGNL(nn.Module):
 
         Rd = torch.min(depth1_expand / (depth2_expand + self.eps), depth2_expand / (depth1_expand + self.eps))
 
-        # normalization: depth relation map [n, (h / 4) * (w / 4), (h / 8) * (w / 8)]
-        # Rd = Rd / (torch.sum(Rd, 2).view(n, int(h / 4) * int(w / 4), 1) + self.eps)
-
         Rd = F.softmax(Rd, 2)
 
-
         S = F.softmax(Ra * Rd, 2)
-
 
         y = torch.bmm(S, g).transpose(1, 2).contiguous().view(n, int(c / 2), int(h / 4), int(w / 4))
 
@@ -109,7 +104,6 @@ class DepthWiseDilatedResidualBlock(nn.Module):
         )
 
         self.conv1 = nn.Sequential(
-
 			nn.Conv2d(channels, channels, kernel_size=3, padding=dilation, dilation=dilation, groups=channels,
 					  bias=False),
 			nn.ReLU6(inplace=True),
@@ -258,4 +252,3 @@ class NLB(nn.Module):
         y = torch.bmm(f, g).transpose(1, 2).contiguous().view(n, int(c / 2), int(h / 4), int(w / 4))
 
         return x + F.upsample(self.z(y), size=x.size()[2:], mode='bilinear', align_corners=True)
-

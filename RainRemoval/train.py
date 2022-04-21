@@ -11,12 +11,12 @@ from torchvision import transforms
 
 import triple_transforms
 from nets import depth_predciton, basic, basic_NL, DGNLNet
-# from config import train_raincityscapes_path, test_raincityscapes_path
 from dataset3 import ImageFolder
 from misc import AvgMeter, check_mkdir
 
 # torch.cuda.set_device(0)
-
+train_raincityscapes_path = "./"
+test_raincityscapes_path = "./"
 cudnn.benchmark = True
 
 ckpt_path = './ckpt'
@@ -24,9 +24,9 @@ exp_name = 'DGNLNet'
 
 args = {
     'iter_num': 40000,
-    'train_batch_size': 32,
+    'train_batch_size': 4,
     'last_iter': 0,
-    'lr': 5e-3,
+    'lr': 5e-4,
     'lr_decay': 0.9,
     'weight_decay': 0,
     'momentum': 0.9,
@@ -35,7 +35,7 @@ args = {
     'img_size_h': 512,
 	'img_size_w': 1024,
 	'crop_size': 512,
-    'snapshot_epochs': 1000
+    'snapshot_epochs': 10000
 }
 
 transform = transforms.Compose([
@@ -50,9 +50,6 @@ triple_transform = triple_transforms.Compose([
     #triple_transforms.RandomCrop(args['crop_size']),
     triple_transforms.RandomHorizontallyFlip()
 ])
-
-train_raincityscapes_path = "./"
-test_raincityscapes_path = "./"
 
 train_set = ImageFolder(train_raincityscapes_path, transform=transform, target_transform=transform, triple_transform=triple_transform, is_train=True)
 train_loader = DataLoader(train_set, batch_size=args['train_batch_size'], num_workers=8, shuffle=True)
@@ -119,7 +116,6 @@ def train(net, optimizer):
             loss.backward()
 
             optimizer.step()
-
 
             train_loss_record.update(loss.data, batch_size)
             train_net_loss_record.update(loss_net.data, batch_size)
