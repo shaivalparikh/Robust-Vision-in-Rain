@@ -140,7 +140,8 @@ class Detectron2Predictor:
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
         
         if output_numpy == True:
-            return out.get_image()[:, :, ::-1]
+            image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+            return image
         
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
@@ -156,9 +157,10 @@ class Detectron2Predictor:
 
         print(f'Time = {stop_time - start_time}, freq = {1/(stop_time - start_time)}')
 
-    def test_image_file(self, image_path, show_original=False):
+    def test_image_file(self, image_path, show_original=False, output_numpy=False):
         image = cv2.imread(image_path)
-        self.test_image(image, show_original)
+        output = self.test_image(image, show_original, output_numpy)
+        return output
 
     def test_video_file(self, video_path):
         cap = cv2.VideoCapture(video_path)
