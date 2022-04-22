@@ -1,6 +1,7 @@
 GOOGLE_COLAB = False
 
 from detectron2_dataset import Detectron2CustomDataset
+from utilities import imshow_jupyter
 
 import torch
 
@@ -18,8 +19,6 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
-
-# from detectron2.projects.point_rend import add_pointrend_config
 
 def get_dict():
     return {}
@@ -61,12 +60,6 @@ class Detectron2Predictor:
             
             classes = MetadataCatalog.get('train').stuff_classes
             self.cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(classes)
-            
-            # # PointRend
-            # # https://github.com/facebookresearch/detectron2/tree/main/projects/PointRend
-            # add_pointrend_config(self.cfg)
-            # config_path = 'configs/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes.yaml'
-            # model_path  = 'detectron2://PointRend/SemanticSegmentation/pointrend_semantic_R_101_FPN_1x_cityscapes/202576688/model_final_cf6ac1.pkl'
         
         elif self.head == 'InstanceSegmentation':
             config_file = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml' # 1539 MiB
@@ -91,18 +84,11 @@ class Detectron2Predictor:
 
         self.predictor = DefaultPredictor(self.cfg)
 
-    def test_image(self, image, show_original=False, output_numpy=False):
-
-        # print(image.shape)
+    def test_image(self, image, size=(12, 6), show_original=False, output_numpy=False):
+        # Input: BGR
         
-        if show_original:
-            if GOOGLE_COLAB:
-                cv2_imshow(image)
-            else:
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                plt.figure(figsize=(20, 10))
-                plt.imshow(image)
-                plt.show()
+        if show_original == True and output_numpy == False:
+            imshow_jupyter(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), size=size)
 
         if self.head == 'SemanticSegmentation':
             v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN))
@@ -139,27 +125,19 @@ class Detectron2Predictor:
 
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
         
+            
+        image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+        
         if output_numpy == True:
-            image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
             return image
         
-        if GOOGLE_COLAB:
-            cv2_imshow(out.get_image()[:, :, ::-1])
-        else:
-            # cv2.imshow('Detectron2 Predictor', out.get_image()[:, :, ::-1])
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            
-            image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            plt.figure(figsize=(20, 10))
-            plt.imshow(image)
-            plt.show()
+        imshow_jupyter(image, size=size)
 
         print(f'Time = {stop_time - start_time}, freq = {1/(stop_time - start_time)}')
 
-    def test_image_file(self, image_path, show_original=False, output_numpy=False):
+    def test_image_file(self, image_path, size=(12, 6), show_original=False, output_numpy=False):
         image = cv2.imread(image_path)
-        output = self.test_image(image, show_original, output_numpy)
+        output = self.test_image(image, size=size, show_original=show_original, output_numpy=output_numpy)
         return output
 
     def test_video_file(self, video_path):
