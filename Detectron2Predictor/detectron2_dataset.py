@@ -59,13 +59,13 @@ class Detectron2CustomDataset:
             print('Ground truth')
             output = visualizer.draw_dataset_dict(file_dict)
             target_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            imshow_jupyter(target_image)
+            imshow_jupyter(target_image, size=size)
             
             print('Predicted')
             outputs = predictor(image)
             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
             output = visualizer.draw_sem_seg(sem_seg.to('cpu'))
             predicted_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            imshow_jupyter(predicted_image)
+            imshow_jupyter(predicted_image, size=size)
             
             print()
