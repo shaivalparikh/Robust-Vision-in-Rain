@@ -94,6 +94,7 @@ class Detectron2Predictor:
     def test_image(self, image, show_original=False, output_numpy=False):
 
         # print(image.shape)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
         if show_original:
             if GOOGLE_COLAB:
@@ -111,10 +112,13 @@ class Detectron2Predictor:
             stop_time = time.time()
             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
             # print(outputs['sem_seg'].shape)
+            # sem_seg = sem_seg.numpy()
             # print(sem_seg.shape)
             # print(sem_seg)
 
+
             out = v.draw_sem_seg(sem_seg.to('cpu'))
+            
 
         elif self.head == 'PanopticSegmentation':
             v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
@@ -140,7 +144,8 @@ class Detectron2Predictor:
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
         
         if output_numpy == True:
-            return out.get_image()[:, :, ::-1]
+            image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+            return image
         
         if GOOGLE_COLAB:
             cv2_imshow(out.get_image()[:, :, ::-1])
@@ -190,3 +195,4 @@ if __name__ == '__main__':
 
     # sample_video_file_path = 'data/videos/video-clip.mp4'
     # predictor.test_video_file(sample_video_file_path)
+

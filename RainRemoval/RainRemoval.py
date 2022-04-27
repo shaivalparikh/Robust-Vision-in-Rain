@@ -29,8 +29,10 @@ class RainRemoval:
           img = np.asarray(Image.open(img))
           
         net = DGNLNet().cuda()
+        #net = DGNLNet().cpu()
 
         net.load_state_dict(torch.load(self.model,map_location=lambda storage,loc: storage.cuda(0)))
+        #net.load_state_dict(torch.load(self.model,map_location=lambda storage,loc: storage.cpu()))
 
         net.eval()
 
@@ -43,6 +45,7 @@ class RainRemoval:
 
             w, h = self.img_infer.size
             img_var = Variable(transform(self.img_infer).unsqueeze(0)).cuda()
+            #img_var = Variable(transform(self.img_infer).unsqueeze(0)).cpu()
             
             res = net(img_var)
 

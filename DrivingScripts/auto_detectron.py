@@ -65,6 +65,9 @@ sys.path.append('../Detectron2Predictor/')
 import detectron2_predictor as d2
 import PIL
 
+sys.path.append('../RainRemoval/')
+import RainRemoval
+
 
 # ==============================================================================
 # -- Global functions ----------------------------------------------------------
@@ -605,8 +608,9 @@ class CameraManager(object):
             item.append(blp)
         self.index = None
         
-        self.detectron = d2.Detectron2Predictor('SemanticSegmentation')
+        self.detectron = d2.Detectron2Predictor('SemanticSegmentation', model_path='../Detectron2Predictor/output_all_40k/model_final.pth')
         #self.detectron = d2.Detectron2Predictor('InstanceSegmentation')
+        self.remover = RainRemoval.RainRemoval('../Rain Removal edited/ckpt/DGNLNet/100_carla.pth')
         
         self.rgb = world.spawn_actor(
             self.sensors[0][-1],
@@ -625,7 +629,9 @@ class CameraManager(object):
         array = np.reshape(array, (image.height, image.width, 4))
         array = array[:, :, :3]
         array = array[:, :, ::-1]
-        array = self.detectron.test_image(array)
+        
+        array = self.remover.infer(array)
+        array = self.detectron.test_image(array, output_numpy=True)
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         #self.rgb.is_listening = True
         self.rgb.listen(self.rgb_detect)

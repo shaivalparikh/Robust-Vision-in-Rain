@@ -4,3 +4,6 @@ ConversionScripts/converted_images/*
 Detectron2Predictor/data/*
 Detectron2Predictor/output/
 */ckpt/
+*/_out/
+Rain\ Removal\ edited/
+*.avi
