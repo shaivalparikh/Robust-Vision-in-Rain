@@ -634,7 +634,7 @@ class CameraManager(object):
         array = array[:, :, :3]
         array = array[:, :, ::-1]
         
-        array = self.detectron.test_image(array, output_numpy=True)
+        array = self.detectron.test_image(array)
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         #self.rgb.is_listening = True
         self.rgb.listen(self.rgb_detect)

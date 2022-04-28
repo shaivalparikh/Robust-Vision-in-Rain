@@ -57,7 +57,7 @@ class RainRemoval:
             self.result_np = np.array(self.result)
         
         if flag:
-            return self.result_np, ssim(img,self.result_np)
+            return self.result_np, ssim(img,self.result_np, multichannel=True)
         else:
             return self.result
     
