@@ -65,6 +65,9 @@ sys.path.append('../Detectron2Predictor/')
 import detectron2_predictor as d2
 import PIL
 
+sys.path.append('../RainRemoval/')
+import RainRemoval
+
 
 # ==============================================================================
 # -- Global functions ----------------------------------------------------------
@@ -605,7 +608,8 @@ class CameraManager(object):
             item.append(blp)
         self.index = None
         
-        self.detectron = d2.Detectron2Predictor('SemanticSegmentation', model_path='../com_model_final.pth')
+        self.detectron = d2.Detectron2Predictor('SemanticSegmentation', model_path='../clear_model_final.pth')
+        self.remover = RainRemoval.RainRemoval('../40000_carla.pth')
         
         self.rgb = world.spawn_actor(
             self.sensors[0][-1],
@@ -625,6 +629,7 @@ class CameraManager(object):
         array = array[:, :, :3]
         array = array[:, :, ::-1]
         
+        array = self.remover.infer(array)
         array = self.detectron.test_image(array, output_numpy=True)
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         #self.rgb.is_listening = True
@@ -758,7 +763,7 @@ def game_loop(args):
         spawn_points = world.map.get_spawn_points()
         destination = random.choice(spawn_points).location
         agent.set_destination(destination)
-        
+
         for i in range(8):
             world.next_weather()
 

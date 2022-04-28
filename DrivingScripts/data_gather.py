@@ -315,8 +315,8 @@ class World(object):
         return [v for v in self._weather_presets if v[1] == x][0]
         
     def get_random_preset_pair(self):
-        #names = random.choice(rain_preset_names)
-        names = rain_preset_names[0]
+        names = random.choice(rain_preset_names)
+        #names = rain_preset_names[0]
         clear = names[0]
         rain = random.choice([names[1], names[2], names[3]])
         a = self.get_preset_by_name(clear)
@@ -1160,24 +1160,24 @@ class CameraManager(object):
         if 'r' in self.record:
             self.record = self.record.replace('r', '')
             if self.count == 0:
-                event.save_to_disk('../../carla_data/' + str(self.record_time) + '_clear.png')
+                event.save_to_disk('./carla_data/' + str(self.record_time) + '_clear.png')
             else:
-                event.save_to_disk('../../carla_data/' + str(self.record_time) + '_rain_' + str(self.presets[1][1][0]) + '.png')
+                event.save_to_disk('./carla_data/' + str(self.record_time) + '_rain_' + str(self.presets[1][1][0]) + '.png')
                 
     def record_semantic(self, event):
         if 's' in self.record:
             self.record = self.record.replace('s', '')
-            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_semantic.png')
+            event.save_to_disk('./carla_data/' + str(self.record_time) + '_semantic.png')
     
     def record_depth(self, event):
         if 'd' in self.record:
             self.record = self.record.replace('d', '')
-            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_depth.png', cc.Depth)
+            event.save_to_disk('./carla_data/' + str(self.record_time) + '_depth.png', cc.Depth)
     
     def record_log(self, event):
         if 'l' in self.record:
             self.record = self.record.replace('l', '')
-            event.save_to_disk('../../carla_data/' + str(self.record_time) + '_logdepth.png', cc.LogarithmicDepth)
+            event.save_to_disk('./carla_data/' + str(self.record_time) + '_logdepth.png', cc.LogarithmicDepth)
 
     def toggle_camera(self):
         self.transform_index = (self.transform_index + 1) % len(self._camera_transforms)
