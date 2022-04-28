@@ -55,6 +55,8 @@ try:
 except IndexError:
     pass
 
+sys.path.append('/opt/carla-simulator/PythonAPI/carla')
+
 import carla
 from carla import ColorConverter as cc
 
@@ -861,7 +863,7 @@ def main():
     argparser.add_argument(
         '--res',
         metavar='WIDTHxHEIGHT',
-        default='1280x720',
+        default='640x360',
         help='Window resolution (default: 1280x720)')
     argparser.add_argument(
         '--sync',
