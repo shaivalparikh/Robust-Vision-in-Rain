@@ -48,17 +48,18 @@ class Detectron2Trainer:
         # of training images per step (i.e. per iteration).
         self.cfg.SOLVER.IMS_PER_BATCH = 8
         self.cfg.SOLVER.BASE_LR = 0.01
-        self.cfg.SOLVER.MAX_ITER = 20000
-        self.cfg.SOLVER.MAX_ITER = 40000
         self.cfg.SOLVER.GAMMA = 0.1
-        # The iteration number to decrease learning rate by GAMMA.
-        self.cfg.SOLVER.STEPS = (10000, 15000, 18000, 19000)
-        self.cfg.SOLVER.STEPS = (20000, 30000, 36000, 38000)
-        # Save a checkpoint after every this number of iterations
-        self.cfg.SOLVER.CHECKPOINT_PERIOD = 1000
-        self.cfg.SOLVER.CHECKPOINT_PERIOD = 2000
+        
+        # self.cfg.SOLVER.MAX_ITER = 20000
+        # # The iteration number to decrease learning rate by GAMMA.
+        # self.cfg.SOLVER.STEPS = (10000, 15000, 18000, 19000)
+        # # Save a checkpoint after every this number of iterations
+        # self.cfg.SOLVER.CHECKPOINT_PERIOD = 1000
+        # self.cfg.TEST.EVAL_PERIOD = 1000
 
-        self.cfg.TEST.EVAL_PERIOD = 1000
+        self.cfg.SOLVER.MAX_ITER = 40000
+        self.cfg.SOLVER.STEPS = (20000, 30000, 36000, 38000)
+        self.cfg.SOLVER.CHECKPOINT_PERIOD = 2000
         self.cfg.TEST.EVAL_PERIOD = 2000
 
         self.cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 0
