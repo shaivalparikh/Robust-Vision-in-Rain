@@ -6,6 +6,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import numpy as np
 from nets import DGNLNet
+from skimage.metrics import structural_similarity as ssim
 
 class RainRemoval:
     def __init__(self,model):
@@ -56,7 +57,7 @@ class RainRemoval:
             self.result_np = np.array(self.result)
         
         if flag:
-            return self.result_np
+            return self.result_np, ssim(img,self.result_np)
         else:
             return self.result
     
