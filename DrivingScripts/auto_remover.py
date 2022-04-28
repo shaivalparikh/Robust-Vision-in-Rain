@@ -68,6 +68,8 @@ import PIL
 sys.path.append('../RainRemoval/')
 import RainRemoval
 
+rain_preset_names = ['Clear Noon', 'Soft Rain Noon', 'Mid Rainy Noon', 'Hard Rain Noon']
+
 
 # ==============================================================================
 # -- Global functions ----------------------------------------------------------
@@ -166,6 +168,14 @@ class World(object):
         self.camera_manager.set_sensor(cam_index, notify=False)
         actor_type = get_actor_display_name(self.player)
         self.hud.notification(actor_type)
+
+    def get_random_preset(self):
+        name = random.choice(rain_preset_names)
+        a = self.get_preset_by_name(name)
+        return a[0]
+    
+    def get_preset_by_name(self, x):
+        return [v for v in self._weather_presets if v[1] == x][0]
 
     def next_weather(self, reverse=False):
         """Get next weather setting"""
@@ -630,6 +640,8 @@ class CameraManager(object):
         array = array[:, :, ::-1]
         
         array = self.remover.infer(array)
+        #if raining.true:
+        #    self.hud.notification("Rain Detected: Level ", raining.level)
         array = self.detectron.test_image(array, output_numpy=True)
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         #self.rgb.is_listening = True
@@ -764,9 +776,7 @@ def game_loop(args):
         destination = random.choice(spawn_points).location
         agent.set_destination(destination)
 
-        for i in range(8):
-            world.next_weather()
-
+        count = 0
         clock = pygame.time.Clock()
 
         while True:
@@ -781,6 +791,11 @@ def game_loop(args):
             world.tick(clock)
             world.render(display)
             pygame.display.flip()
+            
+            count += 1
+            if count > 50:
+                count = 0
+                world.player.get_world().set_weather(world.get_random_preset())
 
             if agent.done():
                 if args.loop:

@@ -8,3 +8,4 @@ Detectron2Predictor/output/
 Rain\ Removal\ edited/
 *.avi
 */carla_data/
+*.pth
