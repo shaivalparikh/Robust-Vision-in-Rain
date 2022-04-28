@@ -55,8 +55,8 @@ class Detectron2Predictor:
             if model_path is None:
                 model_path = 'https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl'
                 
-            self.cfg.DATASETS.TRAIN = ('train')
-            self.cfg.DATASETS.TEST = ('val')
+            self.cfg.DATASETS.TRAIN = ('train',)
+            self.cfg.DATASETS.TEST = ('val',)
             
             classes = MetadataCatalog.get('train').stuff_classes
             self.cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(classes)
@@ -81,65 +81,79 @@ class Detectron2Predictor:
 
         # self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
         self.cfg.MODEL.DEVICE = 'cuda'
+        # self.cfg.MODEL.DEVICE = 'cpu'
 
         self.predictor = DefaultPredictor(self.cfg)
 
-    def test_image(self, image, size=(12, 6), show_original=False, output_numpy=False):
-        # Input: BGR        
-        if show_original == True and output_numpy == False:
+    def test_image(self, image, output_prediction=False, show_prediction=False, show_original=False, size=(12, 6), measure_time=False):
+        # Input: BGR
+        
+        if show_original == True and output_prediction == False:
             imshow_jupyter(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), size=size)
+        
+        if output_prediction == False:
+            v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
 
         if self.head == 'SemanticSegmentation':
-            v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN))
-            start_time = time.time()
+            if measure_time == True:
+                start_time = time.time()
             outputs = self.predictor(image)
-            stop_time = time.time()
+            if measure_time == True:
+                stop_time = time.time()
             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
             # print(outputs['sem_seg'].shape)
-            # sem_seg = sem_seg.numpy()
             # print(sem_seg.shape)
             # print(sem_seg)
-
-
-            out = v.draw_sem_seg(sem_seg.to('cpu'))
             
+            if output_prediction == True:
+                return outputs['sem_seg']
+            
+            out = v.draw_sem_seg(sem_seg.to('cpu'))
 
         elif self.head == 'PanopticSegmentation':
-            v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
-            start_time = time.time()
+            if measure_time == True:
+                start_time = time.time()
             outputs = self.predictor(image)
-            stop_time = time.time()
+            if measure_time == True:
+                stop_time = time.time()
             panoptic_seg, segments_info = outputs['panoptic_seg']
             # print(outputs['panoptic_seg'])
             # print(panoptic_seg)
             # print(segments_info)
-
+            
+            if output_prediction == True:
+                return panoptic_seg
+            
             out = v.draw_panoptic_seg_predictions(panoptic_seg.to('cpu'), segments_info)
 
         else:
-            v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
-            start_time = time.time()
+            if measure_time == True:
+                start_time = time.time()
             outputs = self.predictor(image)
-            stop_time = time.time()
+            if measure_time == True:
+                stop_time = time.time()
             # print(outputs['instances'])
             # print(outputs['instances'].pred_classes)
             # print(outputs['instances'].pred_boxes)
-
+            
+            if output_prediction == True:
+                return None
+            
             out = v.draw_instance_predictions(outputs['instances'].to('cpu'))
-        
             
         image = cv2.cvtColor(out.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
         
-        if output_numpy == True:
-            return image
-        
-        imshow_jupyter(image, size=size)
+        if show_prediction == True:
+            imshow_jupyter(image, size=size)
 
-        print(f'Time = {stop_time - start_time}, freq = {1/(stop_time - start_time)}')
+        if measure_time == True:
+            print(f'Time = {stop_time - start_time}, freq = {1/(stop_time - start_time)}')
+            
+        return image
 
-    def test_image_file(self, image_path, size=(12, 6), show_original=False, output_numpy=False):
+    def test_image_file(self, image_path, output_prediction=False, show_prediction=False, show_original=False, size=(12, 6), measure_time=False):
         image = cv2.imread(image_path)
-        output = self.test_image(image, size=size, show_original=show_original, output_numpy=output_numpy)
+        output = self.test_image(image, output_prediction, show_prediction, show_original, size, measure_time)
         return output
 
     def test_video_file(self, video_path):
@@ -172,4 +186,3 @@ if __name__ == '__main__':
 
     # sample_video_file_path = 'data/videos/video-clip.mp4'
     # predictor.test_video_file(sample_video_file_path)
-
