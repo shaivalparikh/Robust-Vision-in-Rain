@@ -8,13 +8,14 @@ import numpy as np
 import glob
 import time
 import sys
+import cv2
 
 sys.path.append('../Detectron2Predictor/')
 import detectron2_predictor as d2
 
-path = ""
+path = "../DrivingScripts/carla_data"
 output_path = path
-detectron = Detectron2Predictor('SemanticSegmentation', model_path='../clear_model_final.pth')
+detectron = d2.Detectron2Predictor('SemanticSegmentation', model_path='../com_model_final.pth')
 count = 0
 total = 0
 for file in glob.glob(path+"/*.png"):
@@ -24,11 +25,14 @@ for file in glob.glob(path+"/*.png"):
         start = time.time()
         array = Image.open(file)
         array = np.asarray(array)
+        array = array[:, :, :3]
+        array = array[:, :, ::-1]
         output = detectron.test_image(array)
         end = time.time()
 
         total += end - start
-        op = np.hstack((array[:,:,:-1],output))
+        array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
+        op = np.hstack((array,output))
 
         img = Image.fromarray(op,"RGB")
 
