@@ -21,6 +21,7 @@ import numpy.random as random
 import re
 import sys
 import weakref
+import time
 
 try:
     import pygame
@@ -641,18 +642,21 @@ class CameraManager(object):
         array = array[:, :, :3]
         array = array[:, :, ::-1]
         
+        start = time.time()
         report = self.remover.infer(array)
         array = report[0]
         ssim = report[1]
-        if ssim > 0.96:
-            self.hud.notification("No Rain Detected: Level Clear")
-        elif ssim > 0.91:
-            self.hud.notification("Rain Detected: Level Light")
-        elif ssim > 0.82:
-            self.hud.notification("Rain Detected: Level Medium")
-        else:
-            self.hud.notification("Rain Detected: Level Heavy")
         array = self.detectron.test_image(array)
+        end = time.time() - start
+        end = 1/end
+        if ssim > 0.96:
+            self.hud.notification("No Rain Detected: Level Clear, " + str(end) + " fps")
+        elif ssim > 0.91:
+            self.hud.notification("Rain Detected: Level Light, " + str(end) + " fps")
+        elif ssim > 0.82:
+            self.hud.notification("Rain Detected: Level Medium, " + str(end) + " fps")
+        else:
+            self.hud.notification("Rain Detected: Level Heavy, " + str(end) + " fps")
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         #self.rgb.is_listening = True
         self.rgb.listen(self.rgb_detect)

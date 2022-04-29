@@ -21,6 +21,7 @@ import numpy.random as random
 import re
 import sys
 import weakref
+import time
 
 try:
     import pygame
@@ -636,8 +637,13 @@ class CameraManager(object):
         array = array[:, :, :3]
         array = array[:, :, ::-1]
         
+        start = time.time()
         array = self.detectron.test_image(array)
+        end = time.time() - start
+        end = 1/end
+        
         self.segmented = pygame.surfarray.make_surface(array.swapaxes(0, 1))
+        self.hud.notification(str(end) + ' fps')
         #self.rgb.is_listening = True
         self.rgb.listen(self.rgb_detect)
 
