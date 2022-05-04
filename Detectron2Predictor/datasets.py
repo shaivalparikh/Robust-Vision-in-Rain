@@ -17,10 +17,16 @@ def get_carla_file_list(data_dir, packages=[], levels=[]):
         
         for i in range(len(temp_file_name_list)):
             file_name_split = temp_file_name_list[i].split('_')
-            if len(file_name_split) == 3: # [id, type, level.png]
-                file_id = file_name_split[0]
-                level = file_name_split[2].replace('.png', '')
-                if level in levels:
+            if len(levels) > 0:
+                if len(file_name_split) == 3: # [id, type, level.png]
+                    file_id = file_name_split[0]
+                    level = file_name_split[2].replace('.png', '')
+                    if level in levels:
+                        file_list.append((file_id, level, package))
+            else:
+                if len(file_name_split) == 2: # [id, type.png]
+                    file_id = file_name_split[0]
+                    level = ''
                     file_list.append((file_id, level, package))
                     
     print(f'Number of images: {len(file_list)}')
@@ -43,6 +49,43 @@ def get_carla_dicts(file_list, data_dir, clear=True, rain=True):
             record['file_name'] = image_clear_path
             record['height'] = 720 # shape[0]
             record['width'] = 1280 # shape[1]
+            # record['height'] = 512 # shape[0]
+            # record['width'] = 1024 # shape[1]
+            record['image_id'] = file_id + '_clear'
+            record['sem_seg_file_name'] = image_semantic_path
+            dicts.append(record)
+        
+        if rain == True:
+            record = {}
+            record['file_name'] = image_rain_path
+            record['height'] = 720 # shape[0]
+            record['width'] = 1280 # shape[1]
+            record['image_id'] = file_id + '_rain'
+            record['sem_seg_file_name'] = image_semantic_path
+            dicts.append(record)
+
+    return dicts
+
+def get_carla_dicts2(file_list, data_dir, clear=True, rain=True):
+    dicts = []
+    
+    for file in file_list:
+        file_id, level, package = file
+
+        image_clear_path = os.path.join(data_dir, package, file_id + '_clear.png')
+        image_rain_path = os.path.join(data_dir, package, file_id + '_rain_' + level + '.png')
+        # image_semantic_path = os.path.join(data_dir, package, file_id + '_semantic_single.png') # Carla ID
+        image_semantic_path = os.path.join(data_dir, package, file_id + '_semantic_train.png') # Train ID
+
+        if clear == True:
+            record = {}
+            record['file_name'] = image_clear_path
+            # record['height'] = 720 # shape[0]
+            # record['width'] = 1280 # shape[1]
+            record['height'] = 512 # shape[0]
+            record['width'] = 1024 # shape[1]
+            # record['height'] = 256 # shape[0]
+            # record['width'] = 512 # shape[1]
             record['image_id'] = file_id + '_clear'
             record['sem_seg_file_name'] = image_semantic_path
             dicts.append(record)
@@ -202,8 +245,8 @@ def convert_carla(file_list, data_dir):
             # print(image_semantic)
             # imshow_jupyter(image_semantic)
             
-            print(output_file_name)
-            # cv2.imwrite(output_file_name, image_semantic)
+            # print(output_file_name)
+            cv2.imwrite(output_file_name, image_semantic)
             
 def convert_cityscapes(file_list, anno_dir, output_dir):
     for i in tqdm(range(len(file_list))):
@@ -223,5 +266,5 @@ def convert_cityscapes(file_list, anno_dir, output_dir):
             # print(image_semantic)
             # imshow_jupyter(image_semantic)
             
-            print(output_file_name)
-            # cv2.imwrite(output_file_name, image_semantic)
+            # print(output_file_name)
+            cv2.imwrite(output_file_name, image_semantic)

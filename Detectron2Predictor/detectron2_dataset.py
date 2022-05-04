@@ -15,7 +15,7 @@ class Detectron2CustomDataset:
             self.classes = self.train_classes
         if colors is None:
             self.colors = self.train_colors
-        print(f'Number of classes: {len(self.classes)}')
+        # print(f'Number of classes: {len(self.classes)}')
         
         self.train_dataset_name = train_dataset_name
         self.val_dataset_name = val_dataset_name
@@ -37,35 +37,43 @@ class Detectron2CustomDataset:
         MetadataCatalog.get(self.val_dataset_name).stuff_colors = self.colors
         MetadataCatalog.get(self.val_dataset_name).ignore_label = ignore_label
         
-    def visualize_train_dataset(self, num_samples=1, size=(12, 6)):
-        train_metadata = MetadataCatalog.get(self.train_dataset_name)
-        data_train_dicts = self.get_train_dicts_fn()
+    def visualize_dataset(self, dataset='train', num_samples=1, size=(12, 6), show_original=False):
+        if dataset == 'train':
+            metadata = MetadataCatalog.get(self.train_dataset_name)
+            data_dicts = self.get_train_dicts_fn()
+        elif dataset == 'val':
+            metadata = MetadataCatalog.get(self.val_dataset_name)
+            data_dicts = self.get_val_dicts_fn()
 
-        for file_dict in random.sample(data_train_dicts, num_samples):
+        for file_dict in random.sample(data_dicts, num_samples):
             image = cv2.imread(file_dict['file_name'])
-            visualizer = Visualizer(image[:, :, ::-1], metadata=train_metadata, scale=0.5)
+            
+            if show_original == True:
+                imshow_jupyter(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), size=size)
+                
+            visualizer = Visualizer(image[:, :, ::-1], metadata=metadata, scale=0.5)
             output = visualizer.draw_dataset_dict(file_dict)
             image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
             imshow_jupyter(image, size=size)
 
-    def visualize_val_dataset(self, predictor, num_samples=1, size=(12, 6)):
-        val_metadata = MetadataCatalog.get(self.val_dataset_name)
-        data_val_dicts = self.get_val_dicts_fn()
+#     def visualize_val_dataset(self, predictor, num_samples=1, size=(12, 6)):
+#         val_metadata = MetadataCatalog.get(self.val_dataset_name)
+#         data_val_dicts = self.get_val_dicts_fn()
 
-        for file_dict in random.sample(data_val_dicts, num_samples):
-            image = cv2.imread(file_dict['file_name'])
-            visualizer = Visualizer(image[:, :, ::-1], metadata=val_metadata, scale=0.5)
+#         for file_dict in random.sample(data_val_dicts, num_samples):
+#             image = cv2.imread(file_dict['file_name'])
+#             visualizer = Visualizer(image[:, :, ::-1], metadata=val_metadata, scale=0.5)
             
-            print('Ground truth')
-            output = visualizer.draw_dataset_dict(file_dict)
-            target_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            imshow_jupyter(target_image, size=size)
+#             print('Ground truth')
+#             output = visualizer.draw_dataset_dict(file_dict)
+#             target_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+#             imshow_jupyter(target_image, size=size)
             
-            print('Predicted')
-            outputs = predictor(image)
-            sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
-            output = visualizer.draw_sem_seg(sem_seg.to('cpu'))
-            predicted_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
-            imshow_jupyter(predicted_image, size=size)
+#             print('Predicted')
+#             outputs = predictor(image)
+#             sem_seg = torch.argmax(outputs['sem_seg'], dim=0)
+#             output = visualizer.draw_sem_seg(sem_seg.to('cpu'))
+#             predicted_image = cv2.cvtColor(output.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB)
+#             imshow_jupyter(predicted_image, size=size)
             
-            print()
+#             print()

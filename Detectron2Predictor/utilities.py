@@ -21,7 +21,7 @@ def imshow_jupyter(image, type='RGB', size=(12, 6)):
     if image.shape[2] == 3:
         if type == 'BGR':
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        plt.imshow(image, vmin=0)
+        plt.imshow(image)
     else:
-        plt.imshow(image, cmap='gray', vmin=0)
+        plt.imshow(image, cmap='gray')
     plt.show()

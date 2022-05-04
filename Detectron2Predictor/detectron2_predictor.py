@@ -81,7 +81,7 @@ class Detectron2Predictor:
 
         # self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
         self.cfg.MODEL.DEVICE = 'cuda'
-        #self.cfg.MODEL.DEVICE = 'cpu'
+        # self.cfg.MODEL.DEVICE = 'cpu'
 
         self.predictor = DefaultPredictor(self.cfg)
 
